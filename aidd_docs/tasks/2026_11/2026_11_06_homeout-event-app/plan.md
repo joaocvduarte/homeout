@@ -1,6 +1,6 @@
 ---
 objective: "homeout's Home screen (design variant A) runs on Android and Web from one Kotlin Multiplatform codebase that also targets iOS (built and tested later on macOS, per the spec), with every spec behavior covered by passing tests."
-status: pending
+status: in-progress
 ---
 
 # Plan: homeout Home screen
