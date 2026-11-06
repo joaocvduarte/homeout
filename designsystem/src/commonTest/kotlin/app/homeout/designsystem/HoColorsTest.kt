@@ -25,14 +25,14 @@ class HoColorsTest {
     fun darkTokensMatchTheDesign() {
         assertEquals(
             mapOf(
-                "background" to "#0f1817",
-                "surface" to "#192422",
+                "background" to "#283432",
+                "surface" to "#334340",
                 "onSurface" to "#e7eceb",
                 "onSurfaceVariant" to "#b3bdbb",
-                "outline" to "#3e4746",
+                "outline" to "#4f6864",
                 "primary" to "#70a89f",
                 "onPrimaryText" to "#aee0d8",
-                "secondaryContainer" to "#19302d",
+                "secondaryContainer" to "#3e514e",
                 "onSecondaryContainer" to "#c9f2eb",
                 "brand" to "#64837e",
                 "tertiary" to "#f69dab",
@@ -45,13 +45,13 @@ class HoColorsTest {
     fun lightTokensMatchTheDesign() {
         assertEquals(
             mapOf(
-                "background" to "#f3f8f7",
-                "surface" to "#e4edec",
+                "background" to "#e0ebe9",
+                "surface" to "#d1e0de",
                 "onSurface" to "#0f1817",
-                "onSurfaceVariant" to "#596361",
-                "outline" to "#ccd7d5",
-                "primary" to "#548981",
-                "onPrimaryText" to "#3b6a64",
+                "onSurfaceVariant" to "#4a5654",
+                "outline" to "#b4cbc7",
+                "primary" to "#4f817a",
+                "onPrimaryText" to "#335c57",
                 "secondaryContainer" to "#c9f2eb",
                 "onSecondaryContainer" to "#284d48",
                 "brand" to "#64837e",
