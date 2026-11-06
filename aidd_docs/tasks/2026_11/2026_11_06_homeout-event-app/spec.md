@@ -16,7 +16,7 @@ Ship the Home screen of homeout, a new app where people find upcoming music and 
 - City, currency and language are as the design shows them: Lisbon, €, English.
 - The theme follows the phone's light or dark setting.
 - The look matches the design's foundations:
-  - Backgrounds use the homeout logo teal: a pale tint in light and a deep teal in dark. Every text color meets WCAG AA (4.5:1) on the background it sits on.
+  - Backgrounds use the homeout logo teal: a pale tint in light and a deep teal in dark. Every text color meets WCAG AA on the background it sits on: 4.5:1, or 3:1 for large text such as the wordmark.
   - The color tokens follow the design: background, surface, onSurface, onSurfaceVariant, outline, primary, onPrimaryText, secondaryContainer, onSecondaryContainer, brand and tertiary. Each has the hex value the design gives for dark and for light.
   - The type scale follows the design: 15 roles from Display Large to Label Small. Display and Headline roles use Big Shoulders Stencil Display at weight 800, in uppercase. All other roles use Inter.
   - Buttons come in three variants: Primary (outlined accent), Secondary (tonal) and Outline (neutral). Each has default, pressed and disabled states, plus an icon-only form. Sizes are Large 52, Medium 44 and Small 32 (Small is web only). A full-width block form exists too.
@@ -53,7 +53,7 @@ Ship the Home screen of homeout, a new app where people find upcoming music and 
 - Picking Music or Food shows only events in that category. Picking All shows every event.
 - A search shows the events whose title, venue or one of whose artists matches the query.
 - With Music or Food picked, a search shows only matching events in that category.
-- Every text color passes 4.5:1 contrast against the background it sits on, in both themes.
+- Every text color meets WCAG AA contrast (4.5:1, or 3:1 for large text) against the background it sits on, in both themes.
 - Every required behavior is covered by a passing automated test.
 
 ## Open Questions
