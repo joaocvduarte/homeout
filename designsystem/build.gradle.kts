@@ -30,6 +30,9 @@ kotlin {
             implementation(libs.compose.ui)
             implementation(libs.compose.components.resources)
         }
+        androidMain.dependencies {
+            implementation(libs.compose.ui.tooling.preview)
+        }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.compose.ui.test)
@@ -39,4 +42,12 @@ kotlin {
             implementation(libs.androidx.compose.ui.test.manifest)
         }
     }
+}
+
+dependencies {
+    "androidRuntimeClasspath"(libs.compose.ui.tooling)
+}
+
+compose.resources {
+    packageOfResClass = "app.homeout.designsystem.resources"
 }
