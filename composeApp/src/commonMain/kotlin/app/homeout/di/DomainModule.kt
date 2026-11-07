@@ -2,7 +2,9 @@ package app.homeout.di
 
 import app.homeout.domain.CountEventsThisWeek
 import app.homeout.domain.GetEvent
+import app.homeout.domain.GetTicketGroups
 import app.homeout.domain.GetUpcomingEvents
+import app.homeout.domain.PlaceOrder
 import kotlinx.datetime.TimeZone
 import org.koin.dsl.module
 import kotlin.time.Clock
@@ -17,4 +19,6 @@ val domainModule = module {
     factory { GetUpcomingEvents(get(), get(), get()) }
     factory { GetEvent(get(), get(), get()) }
     factory { CountEventsThisWeek(get(), get(), get()) }
+    factory { PlaceOrder(get(), get()) }
+    factory { GetTicketGroups(get(), get()) }
 }

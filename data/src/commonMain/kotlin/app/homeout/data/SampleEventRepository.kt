@@ -2,6 +2,7 @@ package app.homeout.data
 
 import app.homeout.domain.Category
 import app.homeout.domain.Event
+import app.homeout.domain.EventIcon
 import app.homeout.domain.EventRepository
 import app.homeout.domain.PosterColors
 import app.homeout.domain.Price
@@ -34,6 +35,7 @@ class SampleEventRepository(
                 startsAt = today.at(21, 30),
                 price = Price.Euros(1800),
                 venueName = "Cisterna do Largo",
+                icon = EventIcon.MUSIC_NOTES,
                 doorsAt = today.at(21, 0),
                 poster = PosterColors(background = 0xFF8E4754, content = 0xFFFBE9EC),
                 description = "An intimate night of fado inside a 17th-century water cistern beneath Alfama. " +
@@ -49,6 +51,7 @@ class SampleEventRepository(
                 startsAt = today.at(22, 0),
                 price = Price.Free,
                 venueName = "Terraço Calçada",
+                icon = EventIcon.VINYL_RECORD,
                 endsAt = tomorrow.at(2, 0),
                 poster = PosterColors(background = 0xFF335C57, content = 0xFFC9F2EB),
                 description = "Local selectors play soul, Brazilian funk and disco from original records on a rooftop over the Tejo. " +
@@ -63,6 +66,7 @@ class SampleEventRepository(
                 startsAt = tomorrow.at(18, 0),
                 price = Price.Free,
                 venueName = "Praça do Cais",
+                icon = EventIcon.FORK_KNIFE,
                 endsAt = tomorrow.at(23, 30),
                 poster = PosterColors(background = 0xFFF69DAB, content = 0xFF283432),
                 description = "Forty stalls of street food, natural wine and local makers along the river, with live sets from 20:00. " +
@@ -77,6 +81,7 @@ class SampleEventRepository(
                 startsAt = tomorrow.at(20, 0),
                 price = Price.Euros(2500),
                 venueName = "Tasca da Esquina",
+                icon = EventIcon.WINE,
                 endsAt = tomorrow.at(22, 30),
                 poster = PosterColors(background = 0xFFC9F2EB, content = 0xFF284D48),
                 description = "Seven small plates from the neighbourhood’s best tascas, each paired with a Portuguese wine. " +

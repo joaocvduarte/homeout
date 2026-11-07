@@ -4,7 +4,11 @@ import androidx.lifecycle.SavedStateHandle
 import app.homeout.domain.Category
 import app.homeout.domain.CountEventsThisWeek
 import app.homeout.domain.Event
+import app.homeout.domain.EventIcon
 import app.homeout.domain.EventRepository
+import app.homeout.domain.GetTicketGroups
+import app.homeout.domain.OrderRepository
+import app.homeout.domain.PlaceOrder
 import app.homeout.domain.GetEvent
 import app.homeout.domain.GetUpcomingEvents
 import app.homeout.domain.PosterColors
@@ -39,6 +43,9 @@ class KoinGraphTest {
             koin.get<GetUpcomingEvents>()
             koin.get<GetEvent>()
             koin.get<CountEventsThisWeek>()
+            koin.get<PlaceOrder>()
+            koin.get<GetTicketGroups>()
+            assertSame(koin.get<OrderRepository>(), koin.get<OrderRepository>())
             assertEquals(TimeZone.of("Europe/Lisbon"), koin.get<TimeZone>())
             assertSame(Clock.System, koin.get<Clock>())
             koin.get<HomeViewModel>()
@@ -61,6 +68,7 @@ class KoinGraphTest {
             venueName = "Somewhere",
             description = "A fake event.",
             poster = PosterColors(0xFF000000, 0xFFFFFFFF),
+            icon = EventIcon.MUSIC_NOTES,
         )
         val fake = module {
             single<EventRepository> {

@@ -1,6 +1,7 @@
 package app.homeout.data
 
 import app.homeout.domain.Category
+import app.homeout.domain.EventIcon
 import app.homeout.domain.PosterColors
 import app.homeout.domain.Price
 import kotlinx.coroutines.test.runTest
@@ -74,6 +75,14 @@ class SampleEventRepositoryTest {
                 "Seven small plates from the neighbourhood’s best tascas, each paired with a Portuguese wine. Seated at shared tables of eight; a vegetarian menu is available on request.",
             ),
             events.map { it.description },
+        )
+    }
+
+    @Test
+    fun eachEventHasTheDesignIcon() = runTest {
+        assertEquals(
+            listOf(EventIcon.MUSIC_NOTES, EventIcon.VINYL_RECORD, EventIcon.FORK_KNIFE, EventIcon.WINE),
+            repository("2026-11-13T19:00:00Z").events().map { it.icon },
         )
     }
 
