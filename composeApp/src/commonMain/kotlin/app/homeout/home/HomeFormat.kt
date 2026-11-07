@@ -21,11 +21,16 @@ private val dayFormat = LocalDate.Format {
     monthName(MonthNames.ENGLISH_ABBREVIATED)
 }
 
+/** "Fri 13 Nov". */
+internal fun LocalDate.shortLabel(): String = format(dayFormat)
+
 /** "Tonight · Fri 13 Nov" for today, "Sat 14 Nov" otherwise. */
-internal fun DayGroup.label(): String {
-    val day = date.format(dayFormat)
+internal fun dayLabel(date: LocalDate, isToday: Boolean): String {
+    val day = date.shortLabel()
     return if (isToday) "Tonight · $day" else day
 }
+
+internal fun DayGroup.label(): String = dayLabel(date, isToday)
 
 internal fun Category.label(): String = when (this) {
     Category.MUSIC -> "Music"
