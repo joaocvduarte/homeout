@@ -30,7 +30,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import app.homeout.data.SampleEventRepository
 import app.homeout.designsystem.HoFlowerBorder
 import app.homeout.designsystem.HoTheme
 import app.homeout.domain.CountEventsThisWeek
@@ -40,7 +39,7 @@ import app.homeout.event.EventRoute
 import app.homeout.home.HomeRoute
 import app.homeout.home.HomeStateHolder
 import kotlinx.datetime.TimeZone
-import kotlin.time.Clock
+import org.koin.compose.koinInject
 
 /** The design reserves a 50 px status-bar band above the header; Web has no status bar, so keep the band there too. */
 private val DesignStatusBar = WindowInsets(top = 50.dp)
@@ -61,25 +60,22 @@ private val popExit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> Exi
 
 /**
  * The app shell: background, flower border and header stay fixed while Home and the
- * event page swap beneath them. [onNavHostReady] lets Web bind the browser's back button.
+ * event page swap beneath them. Dependencies come from Koin, started by each platform entry.
+ * [onNavHostReady] lets Web bind the browser's back button.
  */
 @Composable
 fun App(
-    clock: Clock = Clock.System,
-    timeZone: TimeZone = TimeZone.of("Europe/Lisbon"),
     navController: NavHostController = rememberNavController(),
     onNavHostReady: suspend (NavHostController) -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
-    val repository = remember(clock, timeZone) { SampleEventRepository(clock, timeZone) }
-    val holder = remember(repository) {
-        HomeStateHolder(
-            getUpcomingEvents = GetUpcomingEvents(repository, clock, timeZone),
-            countEventsThisWeek = CountEventsThisWeek(repository, clock, timeZone),
-            scope = scope,
-        )
+    val timeZone = koinInject<TimeZone>()
+    val getUpcomingEvents = koinInject<GetUpcomingEvents>()
+    val countEventsThisWeek = koinInject<CountEventsThisWeek>()
+    val getEvent = koinInject<GetEvent>()
+    val holder = remember(getUpcomingEvents, countEventsThisWeek) {
+        HomeStateHolder(getUpcomingEvents, countEventsThisWeek, scope)
     }
-    val getEvent = remember(repository) { GetEvent(repository, clock, timeZone) }
     val backToHome: () -> Unit = { navController.popBackStack(HomeDestination, inclusive = false) }
 
     HoTheme {

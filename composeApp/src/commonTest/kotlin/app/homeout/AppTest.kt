@@ -36,11 +36,16 @@ class AppTest {
         "petiscos-tasting" to "PETISCOS TASTING NIGHT",
     )
 
+    /** A UI test with the app's Koin graph on a fixed Friday evening in Lisbon. */
+    private fun appTest(block: suspend ComposeUiTest.() -> Unit) = runComposeUiTest {
+        withKoin(clock, TimeZone.of("Europe/Lisbon")) { block() }
+    }
+
     private fun ComposeUiTest.showApp(): () -> NavHostController {
         lateinit var nav: NavHostController
         setContent {
             nav = rememberNavController()
-            App(clock = clock, timeZone = TimeZone.of("Europe/Lisbon"), navController = nav)
+            App(navController = nav)
         }
         waitForIdle()
         return { nav }
@@ -49,7 +54,7 @@ class AppTest {
     private fun ComposeUiTest.onHome() = onAllNodes(hasText("UPCOMING NEAR YOU")).fetchSemanticsNodes().isNotEmpty()
 
     @Test
-    fun appOpensOnHomeInLisbonTime() = runComposeUiTest {
+    fun appOpensOnHomeInLisbonTime() = appTest {
         showApp()
         onNodeWithText("HOMEOUT").assertExists()
         onNodeWithText("TONIGHT · FRI 13 NOV").assertExists()
@@ -71,19 +76,19 @@ class AppTest {
     }
 
     @Test
-    fun fadoRowOpensFado() = runComposeUiTest { opensAndReturns("fado-old-cistern") }
+    fun fadoRowOpensFado() = appTest { opensAndReturns("fado-old-cistern") }
 
     @Test
-    fun vinylRowOpensVinyl() = runComposeUiTest { opensAndReturns("rooftop-vinyl") }
+    fun vinylRowOpensVinyl() = appTest { opensAndReturns("rooftop-vinyl") }
 
     @Test
-    fun marketRowOpensMarket() = runComposeUiTest { opensAndReturns("night-market-river") }
+    fun marketRowOpensMarket() = appTest { opensAndReturns("night-market-river") }
 
     @Test
-    fun petiscosRowOpensPetiscos() = runComposeUiTest { opensAndReturns("petiscos-tasting") }
+    fun petiscosRowOpensPetiscos() = appTest { opensAndReturns("petiscos-tasting") }
 
     @Test
-    fun headerStaysAndBottomNavHidesOnTheEventPage() = runComposeUiTest {
+    fun headerStaysAndBottomNavHidesOnTheEventPage() = appTest {
         showApp()
         onNodeWithTag("event-fado-old-cistern").performClick()
         waitForIdle()
@@ -94,7 +99,7 @@ class AppTest {
     }
 
     @Test
-    fun filterAndSearchSurviveGoingBack() = runComposeUiTest {
+    fun filterAndSearchSurviveGoingBack() = appTest {
         showApp()
         onNodeWithText("Food").performClick()
         onNodeWithTag("search").performTextInput("Petiscos")
@@ -111,7 +116,7 @@ class AppTest {
     }
 
     @Test
-    fun unknownEventReturnsHome() = runComposeUiTest {
+    fun unknownEventReturnsHome() = appTest {
         val nav = showApp()
         runOnIdle { nav().navigate(EventDestination("unknown")) }
         waitForIdle()
@@ -122,7 +127,7 @@ class AppTest {
     private fun ComposeUiTest.onEvent() = onAllNodes(hasText("HOMEOUT PRESENTS")).fetchSemanticsNodes().isNotEmpty()
 
     @Test
-    fun pushTransitionTakes360Milliseconds() = runComposeUiTest {
+    fun pushTransitionTakes360Milliseconds() = appTest {
         showApp()
         mainClock.autoAdvance = false
         onNodeWithTag("event-fado-old-cistern").performClick()

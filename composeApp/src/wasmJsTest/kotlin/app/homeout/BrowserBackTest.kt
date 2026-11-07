@@ -42,9 +42,11 @@ class BrowserBackTest {
     private fun ComposeUiTest.has(text: String) = onAllNodes(hasText(text)).fetchSemanticsNodes().isNotEmpty()
 
     @Test
-    fun browserBackReturnsHome() = runComposeUiTest {
+    fun browserBackReturnsHome() = runComposeUiTest { withKoin(clock, TimeZone.of("Europe/Lisbon")) { browserBack() } }
+
+    private suspend fun ComposeUiTest.browserBack() {
         setContent {
-            App(clock = clock, timeZone = TimeZone.of("Europe/Lisbon"), onNavHostReady = { it.bindToBrowserNavigation() })
+            App(onNavHostReady = { it.bindToBrowserNavigation() })
         }
         eventually("Home shows") { has("UPCOMING NEAR YOU") }
         val homeHash = window.location.hash

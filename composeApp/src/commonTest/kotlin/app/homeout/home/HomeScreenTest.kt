@@ -16,11 +16,12 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.v2.runComposeUiTest
-import app.homeout.data.SampleEventRepository
 import app.homeout.designsystem.HoTheme
+import app.homeout.withKoin
 import app.homeout.domain.CountEventsThisWeek
 import app.homeout.domain.GetUpcomingEvents
 import kotlinx.datetime.TimeZone
+import org.koin.compose.koinInject
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.Clock
@@ -35,18 +36,22 @@ class HomeScreenTest {
 
     private val opened = mutableListOf<String>()
 
+    private val friday = object : Clock {
+        override fun now() = Instant.parse("2026-11-13T19:00:00Z")
+    }
+
+    /** A UI test with the app's Koin graph on a fixed Friday evening, in UTC. */
+    private fun homeTest(block: suspend ComposeUiTest.() -> Unit) = runComposeUiTest {
+        withKoin(friday) { block() }
+    }
+
     private fun ComposeUiTest.showHome(darkTheme: Boolean = true) {
-        val clock = object : Clock {
-            override fun now() = Instant.parse("2026-11-13T19:00:00Z")
-        }
-        val zone = TimeZone.UTC
         setContent {
             val scope = rememberCoroutineScope()
-            val holder = remember {
-                val repository = SampleEventRepository(clock, zone)
-                HomeStateHolder(GetUpcomingEvents(repository, clock, zone), CountEventsThisWeek(repository, clock, zone), scope)
-            }
-            HoTheme(darkTheme = darkTheme) { HomeRoute(holder, zone, onEventClick = { opened += it }) }
+            val getUpcomingEvents = koinInject<GetUpcomingEvents>()
+            val countEventsThisWeek = koinInject<CountEventsThisWeek>()
+            val holder = remember { HomeStateHolder(getUpcomingEvents, countEventsThisWeek, scope) }
+            HoTheme(darkTheme = darkTheme) { HomeRoute(holder, TimeZone.UTC, onEventClick = { opened += it }) }
         }
         waitForIdle()
     }
@@ -55,7 +60,7 @@ class HomeScreenTest {
         ids.filter { onAllNodes(hasTestTag("event-$it")).fetchSemanticsNodes().isNotEmpty() }
 
     @Test
-    fun opensWithTodayThenTomorrowAndEachEventsCategory() = runComposeUiTest {
+    fun opensWithTodayThenTomorrowAndEachEventsCategory() = homeTest {
         showHome()
         onNodeWithText("UPCOMING NEAR YOU").assertExists()
         onNodeWithText("Lisbon · 4 events this week").assertExists()
@@ -70,7 +75,7 @@ class HomeScreenTest {
     }
 
     @Test
-    fun categoryFilterShowsOnlyThatCategory() = runComposeUiTest {
+    fun categoryFilterShowsOnlyThatCategory() = homeTest {
         showHome()
         onNodeWithText("All").assertIsSelected()
 
@@ -90,7 +95,7 @@ class HomeScreenTest {
     }
 
     @Test
-    fun searchFindsAnEventByArtist() = runComposeUiTest {
+    fun searchFindsAnEventByArtist() = homeTest {
         showHome()
         onNodeWithTag("search").performTextInput("Joana Lobo")
         waitForIdle()
@@ -98,7 +103,7 @@ class HomeScreenTest {
     }
 
     @Test
-    fun searchWithinFoodFindsNoFado() = runComposeUiTest {
+    fun searchWithinFoodFindsNoFado() = homeTest {
         showHome()
         onNodeWithText("Food").performClick()
         onNodeWithTag("search").performTextInput("fado")
@@ -111,14 +116,14 @@ class HomeScreenTest {
     }
 
     @Test
-    fun eachRowOpensItsOwnEvent() = runComposeUiTest {
+    fun eachRowOpensItsOwnEvent() = homeTest {
         showHome()
         ids.forEach { onNodeWithTag("event-$it").assertHasClickAction().performClick() }
         assertEquals(ids, opened)
     }
 
     @Test
-    fun bottomTabsHaveNoAction() = runComposeUiTest {
+    fun bottomTabsHaveNoAction() = homeTest {
         showHome()
         listOf("Explore", "Tickets", "Profile", "Home").forEach {
             assertEquals(0, onAllNodes(hasText(it) and hasClickAction()).fetchSemanticsNodes().size, it)
@@ -126,7 +131,7 @@ class HomeScreenTest {
     }
 
     @Test
-    fun lightThemeRendersTheSameContent() = runComposeUiTest {
+    fun lightThemeRendersTheSameContent() = homeTest {
         showHome(darkTheme = false)
         onNodeWithText("UPCOMING NEAR YOU").assertExists()
         assertEquals(ids, shownEvents())

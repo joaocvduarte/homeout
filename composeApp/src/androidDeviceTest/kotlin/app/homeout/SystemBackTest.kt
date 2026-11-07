@@ -1,6 +1,7 @@
 package app.homeout
 
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.AndroidComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextEquals
@@ -25,7 +26,11 @@ class SystemBackTest {
 
     @Test
     fun systemBackReturnsHomeWithItsFilterAndSearch() = runAndroidComposeUiTest<ComponentActivity> {
-        setContent { App(clock = clock, timeZone = TimeZone.of("Europe/Lisbon")) }
+        withKoin(clock, TimeZone.of("Europe/Lisbon")) { systemBack() }
+    }
+
+    private suspend fun AndroidComposeUiTest<ComponentActivity>.systemBack() {
+        setContent { App() }
         onNodeWithText("Food").performClick()
         onNodeWithTag("search").performTextInput("Petiscos")
         waitForIdle()
