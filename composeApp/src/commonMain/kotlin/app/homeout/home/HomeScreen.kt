@@ -42,13 +42,13 @@ import org.jetbrains.compose.resources.painterResource
 private const val City = "Lisbon"
 
 @Composable
-fun HomeRoute(holder: HomeStateHolder, timeZone: TimeZone, onEventClick: (String) -> Unit) {
-    val state by holder.state.collectAsState()
+fun HomeRoute(viewModel: HomeViewModel, timeZone: TimeZone, onEventClick: (String) -> Unit) {
+    val state by viewModel.state.collectAsState()
     HomeScreen(
         state = state,
         timeZone = timeZone,
-        onQueryChange = holder::onQueryChange,
-        onCategorySelect = holder::onCategorySelect,
+        onQueryChange = viewModel::onQueryChange,
+        onCategorySelect = viewModel::onCategorySelect,
         onEventClick = onEventClick,
     )
 }

@@ -20,8 +20,6 @@ import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
@@ -29,17 +27,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import app.homeout.designsystem.HoFlowerBorder
 import app.homeout.designsystem.HoTheme
-import app.homeout.domain.CountEventsThisWeek
-import app.homeout.domain.GetEvent
-import app.homeout.domain.GetUpcomingEvents
 import app.homeout.event.EventRoute
 import app.homeout.home.HomeRoute
-import app.homeout.home.HomeStateHolder
 import kotlinx.datetime.TimeZone
 import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 /** The design reserves a 50 px status-bar band above the header; Web has no status bar, so keep the band there too. */
 private val DesignStatusBar = WindowInsets(top = 50.dp)
@@ -68,14 +62,7 @@ fun App(
     navController: NavHostController = rememberNavController(),
     onNavHostReady: suspend (NavHostController) -> Unit = {},
 ) {
-    val scope = rememberCoroutineScope()
     val timeZone = koinInject<TimeZone>()
-    val getUpcomingEvents = koinInject<GetUpcomingEvents>()
-    val countEventsThisWeek = koinInject<CountEventsThisWeek>()
-    val getEvent = koinInject<GetEvent>()
-    val holder = remember(getUpcomingEvents, countEventsThisWeek) {
-        HomeStateHolder(getUpcomingEvents, countEventsThisWeek, scope)
-    }
     val backToHome: () -> Unit = { navController.popBackStack(HomeDestination, inclusive = false) }
 
     HoTheme {
@@ -93,10 +80,10 @@ fun App(
                     popExitTransition = popExit,
                 ) {
                     composable<HomeDestination> {
-                        HomeRoute(holder, timeZone, onEventClick = { navController.navigate(EventDestination(it)) })
+                        HomeRoute(koinViewModel(), timeZone, onEventClick = { navController.navigate(EventDestination(it)) })
                     }
-                    composable<EventDestination> { entry ->
-                        EventRoute(entry.toRoute<EventDestination>().id, getEvent, timeZone, onBack = backToHome)
+                    composable<EventDestination> {
+                        EventRoute(koinViewModel(), timeZone, onBack = backToHome)
                     }
                 }
             }

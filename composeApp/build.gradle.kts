@@ -42,6 +42,8 @@ kotlin {
             implementation(project.dependencies.platform(libs.koin.bom))
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
+            implementation(libs.koin.compose.viewmodel)
+            implementation(libs.lifecycle.viewmodel.compose)
         }
         wasmJsMain.dependencies {
             implementation(npm("@js-joda/timezone", "2.23.0"))

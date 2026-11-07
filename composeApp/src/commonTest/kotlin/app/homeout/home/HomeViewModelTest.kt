@@ -4,12 +4,15 @@ import app.homeout.data.SampleEventRepository
 import app.homeout.domain.Category
 import app.homeout.domain.CountEventsThisWeek
 import app.homeout.domain.GetUpcomingEvents
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.TimeZone
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -17,21 +20,26 @@ import kotlin.time.Clock
 import kotlin.time.Instant
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class HomeStateHolderTest {
+class HomeViewModelTest {
 
-    private fun TestScope.holder(): HomeStateHolder {
+    @BeforeTest
+    fun mainDispatcher() = Dispatchers.setMain(UnconfinedTestDispatcher())
+
+    @AfterTest
+    fun resetMainDispatcher() = Dispatchers.resetMain()
+
+    private fun holder(): HomeViewModel {
         val clock = object : Clock {
             override fun now() = Instant.parse("2026-11-13T19:00:00Z")
         }
         val repository = SampleEventRepository(clock, TimeZone.UTC)
-        return HomeStateHolder(
+        return HomeViewModel(
             GetUpcomingEvents(repository, clock, TimeZone.UTC),
             CountEventsThisWeek(repository, clock, TimeZone.UTC),
-            CoroutineScope(backgroundScope.coroutineContext + UnconfinedTestDispatcher(testScheduler)),
         )
     }
 
-    private fun HomeStateHolder.titles() = state.value.groups.flatMap { it.events }.map { it.title }
+    private fun HomeViewModel.titles() = state.value.groups.flatMap { it.events }.map { it.title }
 
     @Test
     fun startsWithEveryEventAndTheWeeklyCount() = runTest {

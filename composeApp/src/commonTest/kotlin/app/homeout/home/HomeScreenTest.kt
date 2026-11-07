@@ -1,7 +1,5 @@
 package app.homeout.home
 
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertHasClickAction
@@ -18,10 +16,8 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.v2.runComposeUiTest
 import app.homeout.designsystem.HoTheme
 import app.homeout.withKoin
-import app.homeout.domain.CountEventsThisWeek
-import app.homeout.domain.GetUpcomingEvents
 import kotlinx.datetime.TimeZone
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.Clock
@@ -47,11 +43,7 @@ class HomeScreenTest {
 
     private fun ComposeUiTest.showHome(darkTheme: Boolean = true) {
         setContent {
-            val scope = rememberCoroutineScope()
-            val getUpcomingEvents = koinInject<GetUpcomingEvents>()
-            val countEventsThisWeek = koinInject<CountEventsThisWeek>()
-            val holder = remember { HomeStateHolder(getUpcomingEvents, countEventsThisWeek, scope) }
-            HoTheme(darkTheme = darkTheme) { HomeRoute(holder, TimeZone.UTC, onEventClick = { opened += it }) }
+            HoTheme(darkTheme = darkTheme) { HomeRoute(koinViewModel(), TimeZone.UTC, onEventClick = { opened += it }) }
         }
         waitForIdle()
     }
