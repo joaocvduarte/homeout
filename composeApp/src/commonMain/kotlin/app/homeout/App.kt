@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
@@ -30,7 +31,9 @@ import androidx.navigation.compose.rememberNavController
 import app.homeout.designsystem.HoFlowerBorder
 import app.homeout.designsystem.HoTheme
 import app.homeout.event.EventRoute
+import app.homeout.buy.BuyRoute
 import app.homeout.root.RootScreen
+import app.homeout.root.RootViewModel
 import kotlinx.datetime.TimeZone
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -89,8 +92,21 @@ fun App(
                             onTicketClick = { _, _ -> },
                         )
                     }
+                    composable<BuyDestination> {
+                        val rootEntry = remember(it) { navController.getBackStackEntry<RootDestination>() }
+                        val root = koinViewModel<RootViewModel>(viewModelStoreOwner = rootEntry)
+                        BuyRoute(
+                            viewModel = koinViewModel(),
+                            timeZone = timeZone,
+                            onBack = back,
+                            onPaid = { message ->
+                                root.showTickets(message)
+                                navController.popBackStack(RootDestination, inclusive = false)
+                            },
+                        )
+                    }
                     composable<EventDestination> {
-                        EventRoute(koinViewModel(), timeZone, onBack = back)
+                        EventRoute(koinViewModel(), timeZone, onBack = back, onBuy = { navController.navigate(BuyDestination(it)) })
                     }
                 }
             }

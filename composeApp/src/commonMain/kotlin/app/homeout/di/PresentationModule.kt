@@ -1,5 +1,6 @@
 package app.homeout.di
 
+import app.homeout.buy.BuyViewModel
 import app.homeout.event.EventViewModel
 import app.homeout.home.HomeViewModel
 import app.homeout.root.RootViewModel
@@ -13,4 +14,5 @@ val presentationModule = module {
     viewModelOf(::HomeViewModel)
     viewModelOf(::TicketsViewModel)
     viewModelOf(::EventViewModel)
+    viewModelOf(::BuyViewModel)
 }

@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import app.homeout.designsystem.HoButton
 import app.homeout.designsystem.HoButtonSize
 import app.homeout.designsystem.HoColors
+import app.homeout.designsystem.HoGlyphs
 import app.homeout.designsystem.HoIcons
 import app.homeout.designsystem.HoPosterFlower
 import app.homeout.designsystem.HoText
@@ -52,9 +53,15 @@ import org.jetbrains.compose.resources.painterResource
 internal fun dayLabelColor(isToday: Boolean, colors: HoColors): Color =
     if (isToday) colors.tertiary else colors.onPrimaryText
 
-/** The design's Event page. The ticket button does nothing yet. */
+/** The design's Event page. The ticket button opens Buy tickets. */
 @Composable
-internal fun EventScreen(detail: EventDetail, timeZone: TimeZone, onBack: () -> Unit, modifier: Modifier = Modifier) {
+internal fun EventScreen(
+    detail: EventDetail,
+    timeZone: TimeZone,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    onBuy: () -> Unit = {},
+) {
     Column(modifier.fillMaxSize()) {
         Box(Modifier.weight(1f)) {
             Column(
@@ -70,7 +77,7 @@ internal fun EventScreen(detail: EventDetail, timeZone: TimeZone, onBack: () -> 
             }
             FloatingButtons(onBack, Modifier.padding(top = 28.dp, start = 32.dp, end = 32.dp))
         }
-        TicketBar(detail)
+        TicketBar(detail, onBuy)
     }
 }
 
@@ -170,7 +177,7 @@ private fun IconLine(icon: DrawableResource, text: String) {
 }
 
 @Composable
-private fun TicketBar(detail: EventDetail) {
+private fun TicketBar(detail: EventDetail, onBuy: () -> Unit) {
     val colors = HoTheme.colors
     Row(
         Modifier
@@ -189,10 +196,10 @@ private fun TicketBar(detail: EventDetail) {
         }
         HoButton(
             text = detail.ticketLabel(),
-            onClick = {},
+            onClick = onBuy,
             modifier = Modifier.weight(1f),
             size = HoButtonSize.Large,
-            icon = HoIcons.Ticket,
+            glyph = HoGlyphs.Ticket,
             block = true,
             tinted = true,
         )

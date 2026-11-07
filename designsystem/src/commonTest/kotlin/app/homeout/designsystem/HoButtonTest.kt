@@ -46,7 +46,7 @@ class HoButtonTest {
         var clicks = 0
         setContent {
             HoTheme(darkTheme = false) {
-                HoButton("Buy tickets", onClick = { clicks++ }, size = HoButtonSize.Large, icon = HoIcons.Ticket, block = true, tinted = true)
+                HoButton("Buy tickets", onClick = { clicks++ }, size = HoButtonSize.Large, block = true, tinted = true, glyph = HoGlyphs.Ticket)
             }
         }
         onNodeWithText("Buy tickets").assertHasClickAction().assertHeightIsEqualTo(52.dp).performClick()

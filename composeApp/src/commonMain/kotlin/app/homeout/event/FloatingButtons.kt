@@ -48,7 +48,7 @@ internal fun FloatingButtons(onBack: () -> Unit, modifier: Modifier = Modifier) 
 }
 
 @Composable
-private fun RoundButton(
+internal fun RoundButton(
     icon: DrawableResource,
     label: String,
     onClick: () -> Unit,

@@ -8,3 +8,6 @@ internal data object RootDestination
 
 @Serializable
 internal data class EventDestination(val id: String)
+
+@Serializable
+internal data class BuyDestination(val id: String)

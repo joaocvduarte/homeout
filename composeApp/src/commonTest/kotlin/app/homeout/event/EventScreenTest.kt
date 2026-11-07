@@ -25,10 +25,10 @@ import kotlin.test.assertEquals
 @OptIn(ExperimentalTestApi::class)
 class EventScreenTest {
 
-    private fun ComposeUiTest.show(detail: EventDetail, darkTheme: Boolean = true, onBack: () -> Unit = {}) {
+    private fun ComposeUiTest.show(detail: EventDetail, darkTheme: Boolean = true, onBack: () -> Unit = {}, onBuy: () -> Unit = {}) {
         setContent {
             HoTheme(darkTheme = darkTheme) {
-                EventScreen(detail, TimeZone.UTC, onBack, Modifier.width(390.dp).height(760.dp))
+                EventScreen(detail, TimeZone.UTC, onBack, Modifier.width(390.dp).height(760.dp), onBuy = onBuy)
             }
         }
         waitForIdle()
@@ -73,13 +73,17 @@ class EventScreenTest {
     }
 
     @Test
-    fun ticketShareAndSaveDoNothing() = runComposeUiTest {
+    fun ticketButtonOpensBuyWhileShareAndSaveDoNothing() = runComposeUiTest {
         var backs = 0
-        show(sampleDetail("fado-old-cistern"), onBack = { backs++ })
-        onNodeWithText("Buy tickets").assertHasClickAction().performClick()
+        var buys = 0
+        show(sampleDetail("fado-old-cistern"), onBack = { backs++ }, onBuy = { buys++ })
         onNodeWithContentDescription("Share event").assertHasClickAction().performClick()
         onNodeWithContentDescription("Save event").assertHasClickAction().performClick()
         waitForIdle()
+        assertEquals(0, buys)
+        onNodeWithText("Buy tickets").assertHasClickAction().performClick()
+        waitForIdle()
+        assertEquals(1, buys)
         assertEquals(0, backs)
         onNodeWithText("Buy tickets").assertIsDisplayed()
         onNodeWithText("Fado at the Old Cistern").assertExists()

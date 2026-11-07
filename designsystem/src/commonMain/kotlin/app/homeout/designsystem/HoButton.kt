@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
@@ -50,7 +51,8 @@ private val ButtonShape = RoundedCornerShape(8.dp)
 private const val DisabledAlpha = 0.45f
 
 /**
- * A labelled button, with an optional leading [icon]. [block] stretches it to the full width.
+ * A labelled button, with an optional leading [icon] (a Phosphor resource) or [glyph] (one of [HoGlyphs]).
+ * [block] stretches it to the full width.
  * [tinted] gives a Primary button the accent tint at rest, as the event page's ticket button shows.
  */
 @Composable
@@ -64,6 +66,7 @@ fun HoButton(
     enabled: Boolean = true,
     block: Boolean = false,
     tinted: Boolean = false,
+    glyph: ImageVector? = null,
     interactionSource: MutableInteractionSource? = null,
 ) {
     ButtonFrame(
@@ -75,7 +78,9 @@ fun HoButton(
         contentPadding = size.horizontalPadding,
         interactionSource = interactionSource,
     ) { content ->
-        if (icon != null) {
+        if (glyph != null) {
+            Image(glyph, contentDescription = null, modifier = Modifier.size(19.dp), colorFilter = ColorFilter.tint(content))
+        } else if (icon != null) {
             Image(
                 painter = painterResource(icon),
                 contentDescription = null,
