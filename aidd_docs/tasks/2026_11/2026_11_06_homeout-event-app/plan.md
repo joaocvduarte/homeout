@@ -5,7 +5,7 @@ status: implemented
 
 # Plan: homeout Home screen
 
-Source: `aidd_docs/tasks/2026_11/2026_11_06_homeout-event-app/spec.md` and the design https://claude.ai/artifact/1krt444a78B46kwb7jYipL (pages homeout UI Library, Button Set, Home Screen; version 1793993015-73d9).
+Source: `aidd_docs/specs/home-screen.md` and the design https://claude.ai/artifact/1krt444a78B46kwb7jYipL (pages homeout UI Library, Button Set, Home Screen; version 1793993015-73d9).
 
 Project root: `C:\Users\joao_\Documents\homeout` (new).
 

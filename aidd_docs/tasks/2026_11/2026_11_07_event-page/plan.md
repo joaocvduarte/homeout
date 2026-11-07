@@ -5,7 +5,7 @@ status: implemented
 
 # Plan: Event page
 
-Source: `aidd_docs/tasks/2026_11/2026_11_07_event-page/spec.md`, and the design https://claude.ai/artifact/1krt444a78B46kwb7jYipL, page `Home Screen.dc.html` ("Home and event screens", version 1794062441-00bd, read 2026-11-07).
+Source: `aidd_docs/specs/event-page.md`, and the design https://claude.ai/artifact/1krt444a78B46kwb7jYipL, page `Home Screen.dc.html` ("Home and event screens", version 1794062441-00bd, read 2026-11-07).
 
 ## Phases
 

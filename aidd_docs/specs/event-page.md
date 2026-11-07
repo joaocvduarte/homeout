@@ -6,7 +6,7 @@ Tapping an event on Home opens that event's page, and the page matches the Event
 
 ## Hard constraints
 
-- Builds on the shipped Home screen. Everything in `aidd_docs/tasks/2026_11/2026_11_06_homeout-event-app/spec.md` still holds: platforms, clean architecture, sample data only, Lisbon, €, English, the foundations, and the theme following the phone's light or dark setting.
+- Builds on the shipped Home screen. Everything in `aidd_docs/specs/home-screen.md` still holds: platforms, clean architecture, sample data only, Lisbon, €, English, the foundations, and the theme following the phone's light or dark setting.
 - Every event row on Home opens the page of that event, and only that event.
 - The page opens with the design's push transition: the event page slides in from the right while Home eases left and fades out. Going back reverses it.
 - The app header (homeout wordmark, notifications icon, avatar) stays at the top on the event page. The bottom navigation is not shown on the event page.
@@ -58,4 +58,4 @@ None
 ## Context
 
 - Design source: the "Event Management UI Library" canvas (https://claude.ai/artifact/1krt444a78B46kwb7jYipL), page Home Screen, now titled "Home and event screens", version 1794062441-00bd, read on 2026-11-07. It adds the Event page, reached by tapping an event row on Home A.
-- Parent spec: `aidd_docs/tasks/2026_11/2026_11_06_homeout-event-app/spec.md`. Its non-goal "the ticket-buying page that an event will open" still holds; this spec only adds the event page in front of it.
+- Parent spec: `aidd_docs/specs/home-screen.md`. Its non-goal "the ticket-buying page that an event will open" still holds; this spec only adds the event page in front of it.
