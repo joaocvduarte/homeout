@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
@@ -50,6 +51,7 @@ private const val DisabledAlpha = 0.45f
 
 /**
  * A labelled button, with an optional leading [icon]. [block] stretches it to the full width.
+ * [tinted] gives a Primary button the accent tint at rest, as the event page's ticket button shows.
  */
 @Composable
 fun HoButton(
@@ -61,12 +63,14 @@ fun HoButton(
     icon: DrawableResource? = null,
     enabled: Boolean = true,
     block: Boolean = false,
+    tinted: Boolean = false,
     interactionSource: MutableInteractionSource? = null,
 ) {
     ButtonFrame(
         onClick = onClick,
         modifier = modifier.height(size.height).then(if (block) Modifier.fillMaxWidth() else Modifier),
         variant = variant,
+        tinted = tinted,
         enabled = enabled,
         contentPadding = size.horizontalPadding,
         interactionSource = interactionSource,
@@ -120,10 +124,14 @@ fun HoIconButton(
 internal data class ButtonColors(val container: Color, val pressed: Color, val content: Color, val border: Color)
 
 @Composable
-internal fun buttonColors(variant: HoButtonVariant): ButtonColors {
+internal fun buttonColors(variant: HoButtonVariant, tinted: Boolean = false): ButtonColors {
     val c = HoTheme.colors
     return when (variant) {
-        HoButtonVariant.Primary -> ButtonColors(Color.Transparent, c.primaryPressed, c.onPrimaryText, c.primary)
+        HoButtonVariant.Primary -> if (tinted) {
+            ButtonColors(c.primaryPressed, c.primaryPressed.compositeOver(c.primaryPressed), c.onPrimaryText, c.primary)
+        } else {
+            ButtonColors(Color.Transparent, c.primaryPressed, c.onPrimaryText, c.primary)
+        }
         HoButtonVariant.Secondary -> ButtonColors(c.secondaryContainer, c.secondaryPressed, c.onSecondaryContainer, c.secondaryContainer)
         HoButtonVariant.Outline -> ButtonColors(Color.Transparent, c.neutralPressed, c.onSurface, c.divider)
     }
@@ -137,9 +145,10 @@ private fun ButtonFrame(
     enabled: Boolean,
     contentPadding: Dp,
     interactionSource: MutableInteractionSource?,
+    tinted: Boolean = false,
     content: @Composable (contentColor: Color) -> Unit,
 ) {
-    val colors = buttonColors(variant)
+    val colors = buttonColors(variant, tinted)
     val interactions = interactionSource ?: remember { MutableInteractionSource() }
     val pressed by interactions.collectIsPressedAsState()
 

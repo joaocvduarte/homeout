@@ -63,6 +63,32 @@ class HoButtonPressedTest {
         }
     }
 
+    @Test
+    fun darkTintedPrimaryRestsOnTheAccentTint() = assertTintedColors(darkTheme = true)
+
+    @Test
+    fun lightTintedPrimaryRestsOnTheAccentTint() = assertTintedColors(darkTheme = false)
+
+    private fun assertTintedColors(darkTheme: Boolean) = runComposeUiTest {
+        val colors = if (darkTheme) HoColors.Dark else HoColors.Light
+        setContent {
+            HoTheme(darkTheme = darkTheme) {
+                Box(Modifier.background(colors.background).padding(8.dp)) {
+                    HoButton("Buy tickets", {}, Modifier.testTag("tinted"), tinted = true)
+                }
+            }
+        }
+        val button = onNodeWithTag("tinted")
+        button.assertBackground(colors.primaryPressed.compositeOver(colors.background), "tinted idle")
+        button.performTouchInput { down(center) }
+        waitForIdle()
+        button.assertBackground(
+            colors.primaryPressed.compositeOver(colors.primaryPressed).compositeOver(colors.background),
+            "tinted pressed",
+        )
+        button.performTouchInput { up() }
+    }
+
     /** Samples a pixel inside the padding, clear of the 1dp border, the rounded corners and the label. */
     private fun SemanticsNodeInteraction.assertBackground(expected: Color, label: String) {
         val pixels = captureToImage().toPixelMap()

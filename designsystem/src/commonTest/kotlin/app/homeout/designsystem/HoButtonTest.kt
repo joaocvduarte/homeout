@@ -42,6 +42,18 @@ class HoButtonTest {
     }
 
     @Test
+    fun tintedButtonShowsItsLabelAndClicks() = runComposeUiTest {
+        var clicks = 0
+        setContent {
+            HoTheme(darkTheme = false) {
+                HoButton("Buy tickets", onClick = { clicks++ }, size = HoButtonSize.Large, icon = HoIcons.Ticket, block = true, tinted = true)
+            }
+        }
+        onNodeWithText("Buy tickets").assertHasClickAction().assertHeightIsEqualTo(52.dp).performClick()
+        assertEquals(1, clicks)
+    }
+
+    @Test
     fun sizesHaveTheDesignHeights() = runComposeUiTest {
         setContent {
             HoTheme(darkTheme = true) {

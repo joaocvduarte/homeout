@@ -46,4 +46,16 @@ class HoFlowerBorderTest {
             assertFalse(SemanticsActions.OnClick in config, "$tag must not take taps")
         }
     }
+
+    @Test
+    fun posterFlowerIsDecorativeOnly() = runComposeUiTest {
+        setContent {
+            HoTheme(darkTheme = false) { HoPosterFlower(Modifier.width(190.dp)) }
+        }
+        val node = onNodeWithTag("poster-flower", useUnmergedTree = true)
+        node.assertWidthIsEqualTo(190.dp)
+        val config = node.fetchSemanticsNode().config
+        assertFalse(SemanticsProperties.ContentDescription in config, "the poster flower must not be announced")
+        assertFalse(SemanticsActions.OnClick in config, "the poster flower must not take taps")
+    }
 }

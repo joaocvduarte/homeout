@@ -45,3 +45,14 @@ fun HoFlowerBorder(modifier: Modifier = Modifier) {
         )
     }
 }
+
+/** The top-right flower from the logo on its own, for the corner of an event poster. Purely decorative. */
+@Composable
+fun HoPosterFlower(modifier: Modifier = Modifier) {
+    Image(
+        painter = painterResource(Res.drawable.flowers_top_right),
+        contentDescription = null,
+        modifier = modifier.alpha(HoTheme.colors.decorationAlpha).testTag("poster-flower"),
+        contentScale = ContentScale.FillWidth,
+    )
+}
