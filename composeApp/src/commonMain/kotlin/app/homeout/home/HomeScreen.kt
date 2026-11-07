@@ -7,17 +7,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.union
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -36,8 +31,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.homeout.designsystem.HoColors
-import app.homeout.designsystem.HoFlowerBorder
 import app.homeout.designsystem.HoIcons
 import app.homeout.designsystem.HoText
 import app.homeout.designsystem.HoTheme
@@ -48,52 +41,36 @@ import org.jetbrains.compose.resources.painterResource
 
 private const val City = "Lisbon"
 
-/** The design reserves a 50 px status-bar band above the header; Web has no status bar, so keep the band there too. */
-private val DesignStatusBar = WindowInsets(top = 50.dp)
-
 @Composable
-fun HomeRoute(holder: HomeStateHolder, timeZone: TimeZone) {
+fun HomeRoute(holder: HomeStateHolder, timeZone: TimeZone, onEventClick: (String) -> Unit) {
     val state by holder.state.collectAsState()
     HomeScreen(
         state = state,
         timeZone = timeZone,
         onQueryChange = holder::onQueryChange,
         onCategorySelect = holder::onCategorySelect,
+        onEventClick = onEventClick,
     )
 }
 
+/** Home's list and bottom bar. The app shell draws the background, flowers and header above it. */
 @Composable
 internal fun HomeScreen(
     state: HomeState,
     timeZone: TimeZone,
     onQueryChange: (String) -> Unit,
     onCategorySelect: (Category?) -> Unit,
-) {
-    val colors = HoTheme.colors
-    Box(Modifier.fillMaxSize().background(colors.background)) {
-        HoFlowerBorder()
-        HomeContent(state, timeZone, onQueryChange, onCategorySelect)
-    }
-}
-
-@Composable
-private fun HomeContent(
-    state: HomeState,
-    timeZone: TimeZone,
-    onQueryChange: (String) -> Unit,
-    onCategorySelect: (Category?) -> Unit,
+    onEventClick: (String) -> Unit,
 ) {
     val colors = HoTheme.colors
     Column(Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .weight(1f)
-                .windowInsetsPadding(WindowInsets.statusBars.union(DesignStatusBar))
                 .verticalScroll(rememberScrollState())
-                .padding(start = 20.dp, end = 20.dp, top = 6.dp, bottom = 20.dp),
+                .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Header()
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 HoText(
                     text = "Upcoming near you",
@@ -115,41 +92,11 @@ private fun HomeContent(
                         role = HoTypeRole.LabelSmall,
                         color = if (group.isToday) colors.tertiary else colors.onSurfaceVariant,
                     )
-                    group.events.forEach { EventRow(it, timeZone) }
+                    group.events.forEach { event -> EventRow(event, timeZone, onClick = { onEventClick(event.id) }) }
                 }
             }
         }
         HomeBottomBar()
-    }
-}
-
-@Composable
-private fun Header() {
-    val colors = HoTheme.colors
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.background(colors.brand).padding(start = 10.dp, end = 10.dp, top = 2.dp, bottom = 3.dp)) {
-            HoText(
-                text = "homeout",
-                role = HoTypeRole.HeadlineSmall,
-                color = HoColors.Dark.onSurface,
-                style = TextStyle(lineHeight = 26.sp, letterSpacing = 2.sp),
-            )
-        }
-        Box(Modifier.weight(1f))
-        Box(Modifier.size(44.dp), contentAlignment = Alignment.Center) {
-            Image(
-                painter = painterResource(HoIcons.Bell),
-                contentDescription = "Notifications",
-                modifier = Modifier.size(20.dp),
-                colorFilter = ColorFilter.tint(colors.onSurface),
-            )
-        }
-        Box(
-            Modifier.padding(start = 8.dp).size(36.dp).background(colors.secondaryContainer, CircleShape),
-            contentAlignment = Alignment.Center,
-        ) {
-            HoText("MA", HoTypeRole.LabelLarge, color = colors.onSecondaryContainer, style = TextStyle(fontSize = 13.sp))
-        }
     }
 }
 

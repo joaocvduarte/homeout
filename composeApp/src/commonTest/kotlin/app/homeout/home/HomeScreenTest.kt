@@ -2,10 +2,9 @@ package app.homeout.home
 
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
@@ -24,7 +23,6 @@ import app.homeout.domain.GetUpcomingEvents
 import kotlinx.datetime.TimeZone
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.time.Clock
 import kotlin.time.Instant
 
@@ -34,6 +32,8 @@ class HomeScreenTest {
     private val ids = listOf("fado-old-cistern", "rooftop-vinyl", "night-market-river", "petiscos-tasting")
     private val music = ids.take(2)
     private val food = ids.drop(2)
+
+    private val opened = mutableListOf<String>()
 
     private fun ComposeUiTest.showHome(darkTheme: Boolean = true) {
         val clock = object : Clock {
@@ -46,7 +46,7 @@ class HomeScreenTest {
                 val repository = SampleEventRepository(clock, zone)
                 HomeStateHolder(GetUpcomingEvents(repository, clock, zone), CountEventsThisWeek(repository, clock, zone), scope)
             }
-            HoTheme(darkTheme = darkTheme) { HomeRoute(holder, zone) }
+            HoTheme(darkTheme = darkTheme) { HomeRoute(holder, zone, onEventClick = { opened += it }) }
         }
         waitForIdle()
     }
@@ -111,13 +111,18 @@ class HomeScreenTest {
     }
 
     @Test
-    fun eventsBellAndOtherTabsHaveNoAction() = runComposeUiTest {
+    fun eachRowOpensItsOwnEvent() = runComposeUiTest {
         showHome()
-        ids.forEach { onNodeWithTag("event-$it").assertHasNoClickActionOrParent() }
+        ids.forEach { onNodeWithTag("event-$it").assertHasClickAction().performClick() }
+        assertEquals(ids, opened)
+    }
+
+    @Test
+    fun bottomTabsHaveNoAction() = runComposeUiTest {
+        showHome()
         listOf("Explore", "Tickets", "Profile", "Home").forEach {
             assertEquals(0, onAllNodes(hasText(it) and hasClickAction()).fetchSemanticsNodes().size, it)
         }
-        onNodeWithText("HOMEOUT").assertExists()
     }
 
     @Test
@@ -125,11 +130,5 @@ class HomeScreenTest {
         showHome(darkTheme = false)
         onNodeWithText("UPCOMING NEAR YOU").assertExists()
         assertEquals(ids, shownEvents())
-    }
-
-    private fun SemanticsNodeInteraction.assertHasNoClickActionOrParent() {
-        val clickable = generateSequence(fetchSemanticsNode()) { it.parent }
-            .any { it.config.contains(SemanticsActions.OnClick) }
-        assertFalse(clickable, "event row must not be clickable yet")
     }
 }

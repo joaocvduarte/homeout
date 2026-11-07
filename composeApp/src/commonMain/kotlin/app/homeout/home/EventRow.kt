@@ -2,6 +2,7 @@ package app.homeout.home
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -27,10 +29,14 @@ import kotlinx.datetime.TimeZone
 import kotlin.math.sqrt
 
 @Composable
-internal fun EventRow(event: Event, timeZone: TimeZone, modifier: Modifier = Modifier) {
+internal fun EventRow(event: Event, timeZone: TimeZone, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val colors = HoTheme.colors
     Row(
-        modifier = modifier.testTag("event-${event.id}").semantics(mergeDescendants = true) {},
+        modifier = modifier
+            .testTag("event-${event.id}")
+            .clip(RoundedCornerShape(10.dp))
+            .clickable(role = Role.Button, onClick = onClick)
+            .semantics(mergeDescendants = true) {},
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
