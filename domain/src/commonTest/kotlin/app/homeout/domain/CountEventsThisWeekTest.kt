@@ -12,7 +12,7 @@ class CountEventsThisWeekTest {
     private fun count(now: String, vararg startsAt: String) = CountEventsThisWeek(
         repository = object : EventRepository {
             override suspend fun events() = startsAt.mapIndexed { i, start ->
-                Event("$i", "Event $i", Category.MUSIC, listOf("Artist"), "Venue", Instant.parse(start), Price.Free)
+                testEvent("$i", "Event $i", Category.MUSIC, listOf("Artist"), "Venue", Instant.parse(start))
             }
         },
         clock = object : Clock {

@@ -92,5 +92,5 @@ class GetUpcomingEventsTest {
         venue: String,
         startsAt: String,
         artist: String,
-    ) = Event(id, title, category, listOf(artist), venue, Instant.parse(startsAt), Price.Free)
+    ) = testEvent(id, title, category, listOf(artist), venue, Instant.parse(startsAt))
 }
