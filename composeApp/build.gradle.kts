@@ -39,6 +39,9 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.core)
             implementation(libs.navigation.compose)
+            implementation(project.dependencies.platform(libs.koin.bom))
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
         }
         wasmJsMain.dependencies {
             implementation(npm("@js-joda/timezone", "2.23.0"))
@@ -47,6 +50,7 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.compose.ui.test)
             implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.koin.test)
         }
         getByName("androidDeviceTest").dependencies {
             implementation(libs.androidx.test.runner)
