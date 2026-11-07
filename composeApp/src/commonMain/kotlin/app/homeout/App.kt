@@ -30,7 +30,7 @@ import androidx.navigation.compose.rememberNavController
 import app.homeout.designsystem.HoFlowerBorder
 import app.homeout.designsystem.HoTheme
 import app.homeout.event.EventRoute
-import app.homeout.home.HomeRoute
+import app.homeout.root.RootScreen
 import kotlinx.datetime.TimeZone
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -53,8 +53,8 @@ private val popExit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> Exi
     { slideOutHorizontally(pushOffset) { it } }
 
 /**
- * The app shell: background, flower border and header stay fixed while Home and the
- * event page swap beneath them. Dependencies come from Koin, started by each platform entry.
+ * The app shell: background, flower border and header stay fixed while the tabs and the
+ * screens pushed over them swap beneath. Dependencies come from Koin, started by each platform entry.
  * [onNavHostReady] lets Web bind the browser's back button.
  */
 @Composable
@@ -63,7 +63,7 @@ fun App(
     onNavHostReady: suspend (NavHostController) -> Unit = {},
 ) {
     val timeZone = koinInject<TimeZone>()
-    val backToHome: () -> Unit = { navController.popBackStack(HomeDestination, inclusive = false) }
+    val back: () -> Unit = { if (navController.previousBackStackEntry != null) navController.popBackStack() }
 
     HoTheme {
         Box(Modifier.fillMaxSize().background(HoTheme.colors.background)) {
@@ -72,18 +72,25 @@ fun App(
                 AppHeader(Modifier.padding(start = 20.dp, end = 20.dp, top = 6.dp))
                 NavHost(
                     navController = navController,
-                    startDestination = HomeDestination,
+                    startDestination = RootDestination,
                     modifier = Modifier.weight(1f),
                     enterTransition = enter,
                     exitTransition = exit,
                     popEnterTransition = popEnter,
                     popExitTransition = popExit,
                 ) {
-                    composable<HomeDestination> {
-                        HomeRoute(koinViewModel(), timeZone, onEventClick = { navController.navigate(EventDestination(it)) })
+                    composable<RootDestination> {
+                        RootScreen(
+                            root = koinViewModel(),
+                            home = koinViewModel(),
+                            tickets = koinViewModel(),
+                            timeZone = timeZone,
+                            onEventClick = { navController.navigate(EventDestination(it)) },
+                            onTicketClick = { _, _ -> },
+                        )
                     }
                     composable<EventDestination> {
-                        EventRoute(koinViewModel(), timeZone, onBack = backToHome)
+                        EventRoute(koinViewModel(), timeZone, onBack = back)
                     }
                 }
             }

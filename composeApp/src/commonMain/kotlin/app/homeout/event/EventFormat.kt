@@ -1,5 +1,6 @@
 package app.homeout.event
 
+import app.homeout.domain.Event
 import app.homeout.domain.EventDetail
 import app.homeout.domain.Price
 import app.homeout.home.dayLabel
@@ -12,8 +13,11 @@ import kotlinx.datetime.toLocalDateTime
 private fun EventDetail.day(timeZone: TimeZone) = event.startsAt.toLocalDateTime(timeZone).date.shortLabel()
 
 /** "Fri 13 Nov · 21:30", printed on the poster. */
-internal fun EventDetail.posterDate(timeZone: TimeZone): String =
-    "${day(timeZone)} · ${event.startsAt.timeLabel(timeZone)}"
+internal fun EventDetail.posterDate(timeZone: TimeZone): String = event.posterDate(timeZone)
+
+/** "Fri 13 Nov · 21:30": the event's day and start time. */
+internal fun Event.posterDate(timeZone: TimeZone): String =
+    "${startsAt.toLocalDateTime(timeZone).date.shortLabel()} · ${startsAt.timeLabel(timeZone)}"
 
 /** "Fri 13 Nov · Doors 21:00 · Starts 21:30", "Fri 13 Nov · 22:00 – 02:00", or "Fri 13 Nov · 21:30". */
 internal fun EventDetail.whenLine(timeZone: TimeZone): String {

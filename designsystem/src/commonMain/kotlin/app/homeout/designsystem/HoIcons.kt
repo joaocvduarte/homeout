@@ -6,7 +6,6 @@ import app.homeout.designsystem.resources.ph_arrow_right
 import app.homeout.designsystem.resources.ph_bell
 import app.homeout.designsystem.resources.ph_bookmark_simple
 import app.homeout.designsystem.resources.ph_calendar_blank
-import app.homeout.designsystem.resources.ph_compass
 import app.homeout.designsystem.resources.ph_heart
 import app.homeout.designsystem.resources.ph_house_fill
 import app.homeout.designsystem.resources.ph_magnifying_glass
@@ -28,7 +27,6 @@ object HoIcons {
     val Bell: DrawableResource get() = Res.drawable.ph_bell
     val BookmarkSimple: DrawableResource get() = Res.drawable.ph_bookmark_simple
     val CalendarBlank: DrawableResource get() = Res.drawable.ph_calendar_blank
-    val Compass: DrawableResource get() = Res.drawable.ph_compass
     val ForkKnife: DrawableResource get() = Res.drawable.ph_fork_knife
     val Heart: DrawableResource get() = Res.drawable.ph_heart
     val HouseFill: DrawableResource get() = Res.drawable.ph_house_fill

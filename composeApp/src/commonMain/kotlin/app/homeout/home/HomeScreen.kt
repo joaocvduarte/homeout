@@ -53,7 +53,7 @@ fun HomeRoute(viewModel: HomeViewModel, timeZone: TimeZone, onEventClick: (Strin
     )
 }
 
-/** Home's list and bottom bar. The app shell draws the background, flowers and header above it. */
+/** Home's list. The app shell draws the background, flowers and header; the root draws the tab bar. */
 @Composable
 internal fun HomeScreen(
     state: HomeState,
@@ -63,10 +63,9 @@ internal fun HomeScreen(
     onEventClick: (String) -> Unit,
 ) {
     val colors = HoTheme.colors
-    Column(Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
-                .weight(1f)
+                .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -96,8 +95,6 @@ internal fun HomeScreen(
                 }
             }
         }
-        HomeBottomBar()
-    }
 }
 
 @Composable

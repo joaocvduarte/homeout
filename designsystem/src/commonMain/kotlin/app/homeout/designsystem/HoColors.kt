@@ -27,7 +27,6 @@ data class HoColors(
     val primaryPressed: Color,
     val secondaryPressed: Color,
     val neutralPressed: Color,
-    val stripe: Color,
     /** Translucent fill for buttons floating over imagery (the event page's Back and Share). */
     val glass: Color,
     /** Opacity of decorative imagery such as the flower border. */
@@ -51,7 +50,6 @@ data class HoColors(
             primaryPressed = Color(0xFF70A89F).copy(alpha = 0.14f),
             secondaryPressed = Color(0xFF4B625E),
             neutralPressed = Color(0xFFE7ECEB).copy(alpha = 0.08f),
-            stripe = Color(0xFF3C4E4B),
             glass = Color(0xFF283432).copy(alpha = 0.72f),
             decorationAlpha = 0.92f,
         )
@@ -73,7 +71,6 @@ data class HoColors(
             primaryPressed = Color(0xFF4F817A).copy(alpha = 0.12f),
             secondaryPressed = Color(0xFFAEE0D8),
             neutralPressed = Color(0xFF0F1817).copy(alpha = 0.07f),
-            stripe = Color(0xFFBDD1CE),
             glass = Color(0xFFE0EBE9).copy(alpha = 0.8f),
             decorationAlpha = 1f,
         )

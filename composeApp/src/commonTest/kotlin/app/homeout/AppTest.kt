@@ -93,7 +93,7 @@ class AppTest {
         onNodeWithTag("event-fado-old-cistern").performClick()
         waitForIdle()
         onNodeWithText("HOMEOUT").assertExists()
-        listOf("Explore", "Tickets", "Profile").forEach {
+        listOf("Home", "Tickets", "Profile").forEach {
             assertEquals(0, onAllNodes(hasText(it)).fetchSemanticsNodes().size, it)
         }
     }

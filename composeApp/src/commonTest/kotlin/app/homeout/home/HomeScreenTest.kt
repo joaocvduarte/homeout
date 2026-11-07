@@ -115,11 +115,9 @@ class HomeScreenTest {
     }
 
     @Test
-    fun bottomTabsHaveNoAction() = homeTest {
+    fun everyRowShowsItsPosterColoredThumbnail() = homeTest {
         showHome()
-        listOf("Explore", "Tickets", "Profile", "Home").forEach {
-            assertEquals(0, onAllNodes(hasText(it) and hasClickAction()).fetchSemanticsNodes().size, it)
-        }
+        ids.forEach { onNodeWithTag("thumb-$it", useUnmergedTree = true).assertExists() }
     }
 
     @Test
