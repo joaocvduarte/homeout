@@ -1,6 +1,6 @@
 ---
 objective: "Koin provides every dependency from shared code on Android, iOS and Web. Home and the event page get their state from Kotlin ViewModels that keep it through Android activity recreation. `domain` stays free of DI code, tests swap bindings through Koin, and the app looks and behaves exactly as before."
-status: in-progress
+status: implemented
 ---
 
 # Plan: Dependency injection and ViewModels
