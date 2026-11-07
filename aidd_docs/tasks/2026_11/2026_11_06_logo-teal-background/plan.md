@@ -1,6 +1,6 @@
 ---
 objective: "The app matches design v10: logo-teal backgrounds that follow the phone's theme (pale tint in light, deep teal in dark), every text color at WCAG AA, and a border of real flowers from the logo across the top of Home."
-status: in-progress
+status: implemented
 ---
 
 # Plan: Logo teal background and flower border
