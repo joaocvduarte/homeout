@@ -11,6 +11,7 @@ internal fun testEvent(
     venue: String,
     startsAt: Instant,
     price: Price = Price.Free,
+    icon: EventIcon = EventIcon.MUSIC_NOTES,
 ) = Event(
     id = id,
     title = title,
@@ -22,4 +23,5 @@ internal fun testEvent(
     venueName = "Venue",
     description = "Description",
     poster = PosterColors(0xFF000000, 0xFFFFFFFF),
+    icon = icon,
 )

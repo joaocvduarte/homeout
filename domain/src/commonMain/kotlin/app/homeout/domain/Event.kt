@@ -17,6 +17,7 @@ data class Event(
     val venueName: String,
     val description: String,
     val poster: PosterColors,
+    val icon: EventIcon,
     val doorsAt: Instant? = null,
     val endsAt: Instant? = null,
 )
