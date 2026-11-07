@@ -1,6 +1,6 @@
 ---
 objective: "From an event page people buy or reserve 1–8 tickets with a simulated payment method, land on a Tickets tab that groups their tickets by event with a count badge, and open each ticket's swipeable QR code, all matching design 1794071534-ba69 on Android and Web, in both themes, with every behavior tested."
-status: in-progress
+status: implemented
 ---
 
 # Plan: Buying tickets, Tickets tab and ticket QR codes
