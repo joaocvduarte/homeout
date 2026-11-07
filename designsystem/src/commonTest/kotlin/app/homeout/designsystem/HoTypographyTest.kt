@@ -1,13 +1,19 @@
 package app.homeout.designsystem
 
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
@@ -66,5 +72,22 @@ class HoTypographyTest {
         val inter = styles.getValue(HoTypeRole.BodyMedium).fontFamily
         assertTrue(stencil != inter, "Display/Headline roles must not share Inter's font family")
         assertEquals(inter, styles.getValue(HoTypeRole.TitleLarge).fontFamily)
+    }
+
+    @Test
+    fun monoFamilyRendersOutsideTheScale() = runComposeUiTest {
+        var mono: FontFamily? = null
+        var inter: FontFamily? = null
+        setContent {
+            HoTheme(darkTheme = false) {
+                mono = HoTheme.typography.mono
+                inter = HoTheme.typography.style(HoTypeRole.BodyMedium).fontFamily
+                BasicText("homeout presents", Modifier.testTag("mono"), style = TextStyle(fontFamily = HoTheme.typography.mono))
+            }
+        }
+        onNodeWithTag("mono").assertExists()
+        assertNotNull(mono)
+        assertTrue(mono != inter, "mono must be its own family, not Inter")
+        assertEquals(15, HoTypeRole.entries.size)
     }
 }

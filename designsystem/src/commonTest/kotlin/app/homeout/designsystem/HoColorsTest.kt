@@ -61,5 +61,11 @@ class HoColorsTest {
         )
     }
 
+    @Test
+    fun glassIsTheBackgroundSeeThrough() {
+        assertEquals(Color(0xFF283432).copy(alpha = 0.72f), HoColors.Dark.glass)
+        assertEquals(Color(0xFFE0EBE9).copy(alpha = 0.8f), HoColors.Light.glass)
+    }
+
     private fun Color.hex(): String = "#" + (toArgb() and 0xFFFFFF).toString(16).padStart(6, '0')
 }

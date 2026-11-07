@@ -12,6 +12,7 @@ import app.homeout.designsystem.resources.Res
 import app.homeout.designsystem.resources.big_shoulders_stencil_display_extrabold
 import app.homeout.designsystem.resources.inter_medium
 import app.homeout.designsystem.resources.inter_regular
+import app.homeout.designsystem.resources.jetbrains_mono_regular
 import org.jetbrains.compose.resources.Font
 
 enum class HoFont { Stencil, Inter }
@@ -46,6 +47,8 @@ enum class HoTypeRole(
 class HoTypography internal constructor(
     private val stencil: FontFamily,
     private val inter: FontFamily,
+    /** JetBrains Mono, for poster labels. It sits outside the 15-role scale. */
+    val mono: FontFamily,
 ) {
     fun style(role: HoTypeRole): TextStyle = TextStyle(
         fontFamily = if (role.font == HoFont.Stencil) stencil else inter,
@@ -63,4 +66,5 @@ internal fun rememberHoTypography(): HoTypography = HoTypography(
         Font(Res.font.inter_regular, FontWeight.Normal),
         Font(Res.font.inter_medium, FontWeight.Medium),
     ),
+    mono = FontFamily(Font(Res.font.jetbrains_mono_regular, FontWeight.Normal)),
 )
