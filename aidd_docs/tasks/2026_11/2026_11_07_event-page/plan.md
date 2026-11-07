@@ -1,6 +1,6 @@
 ---
 objective: "Tapping an event on Home opens its event page as the design shows, on Android and Web, in light and dark. The ticket, Share and Save buttons do nothing. The page's Back button, Android system back and browser back all return to Home with its filter and search kept, and every behavior is covered by passing tests."
-status: in-progress
+status: implemented
 ---
 
 # Plan: Event page
