@@ -9,7 +9,7 @@ Find upcoming music and food events. Kotlin Multiplatform with Compose Multiplat
 | `domain` | Event model and use cases. No UI. | kotlinx-datetime |
 | `data` | Local sample events | `domain` |
 | `designsystem` | Colors, type, theme, buttons, icons | Compose |
-| `composeApp` | Home screen, iOS and Web entry points | all of the above |
+| `composeApp` | Home and event screens, navigation between them, iOS and Web entry points | all of the above |
 | `androidApp` | Android entry point | `composeApp` |
 
 ## Requirements
