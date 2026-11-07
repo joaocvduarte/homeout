@@ -30,6 +30,7 @@ class HoContrastTest {
             }
             check("onSecondaryContainer", c.onSecondaryContainer, "secondaryContainer", c.secondaryContainer, 4.5)
             check("onSecondaryContainer", c.onSecondaryContainer, "secondaryPressed", c.secondaryPressed, 4.5)
+            check("onTertiary", c.onTertiary, "tertiary", c.tertiary, 4.5)
             check("primary", c.primary, "background", c.background, 3.0)
             // The wordmark is 24sp at weight 800, large text under WCAG, so 3:1 applies.
             check("wordmark letters", HoColors.Dark.onSurface, "brand", c.brand, 3.0)

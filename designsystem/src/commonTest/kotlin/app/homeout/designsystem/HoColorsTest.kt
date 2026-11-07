@@ -62,6 +62,12 @@ class HoColorsTest {
     }
 
     @Test
+    fun onTertiaryIsTheBadgeText() {
+        assertEquals("#283432", HoColors.Dark.onTertiary.hex())
+        assertEquals("#ffffff", HoColors.Light.onTertiary.hex())
+    }
+
+    @Test
     fun glassIsTheBackgroundSeeThrough() {
         assertEquals(Color(0xFF283432).copy(alpha = 0.72f), HoColors.Dark.glass)
         assertEquals(Color(0xFFE0EBE9).copy(alpha = 0.8f), HoColors.Light.glass)
