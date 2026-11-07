@@ -11,3 +11,7 @@ internal data class EventDestination(val id: String)
 
 @Serializable
 internal data class BuyDestination(val id: String)
+
+/** The QR code of ticket [index] of [eventId]'s tickets. */
+@Serializable
+internal data class QrDestination(val eventId: String, val index: Int)

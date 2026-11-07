@@ -13,8 +13,12 @@ import app.homeout.domain.GetEvent
 import app.homeout.domain.GetUpcomingEvents
 import app.homeout.domain.PosterColors
 import app.homeout.domain.Price
+import app.homeout.buy.BuyViewModel
 import app.homeout.event.EventViewModel
 import app.homeout.home.HomeViewModel
+import app.homeout.qr.QrViewModel
+import app.homeout.root.RootViewModel
+import app.homeout.tickets.TicketsViewModel
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.TimeZone
 import org.koin.core.context.stopKoin
@@ -50,6 +54,10 @@ class KoinGraphTest {
             assertSame(Clock.System, koin.get<Clock>())
             koin.get<HomeViewModel>()
             koin.get<EventViewModel> { parametersOf(SavedStateHandle(mapOf("id" to "fado-old-cistern"))) }
+            koin.get<RootViewModel> { parametersOf(SavedStateHandle()) }
+            koin.get<TicketsViewModel>()
+            koin.get<BuyViewModel> { parametersOf(SavedStateHandle(mapOf("id" to "fado-old-cistern"))) }
+            koin.get<QrViewModel> { parametersOf(SavedStateHandle(mapOf("eventId" to "fado-old-cistern", "index" to 0))) }
         } finally {
             stopKoin()
         }

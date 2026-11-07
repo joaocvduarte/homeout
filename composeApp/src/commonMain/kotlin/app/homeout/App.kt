@@ -32,6 +32,7 @@ import app.homeout.designsystem.HoFlowerBorder
 import app.homeout.designsystem.HoTheme
 import app.homeout.event.EventRoute
 import app.homeout.buy.BuyRoute
+import app.homeout.qr.QrRoute
 import app.homeout.root.RootScreen
 import app.homeout.root.RootViewModel
 import kotlinx.datetime.TimeZone
@@ -89,7 +90,7 @@ fun App(
                             tickets = koinViewModel(),
                             timeZone = timeZone,
                             onEventClick = { navController.navigate(EventDestination(it)) },
-                            onTicketClick = { _, _ -> },
+                            onTicketClick = { eventId, index -> navController.navigate(QrDestination(eventId, index)) },
                         )
                     }
                     composable<BuyDestination> {
@@ -104,6 +105,9 @@ fun App(
                                 navController.popBackStack(RootDestination, inclusive = false)
                             },
                         )
+                    }
+                    composable<QrDestination> {
+                        QrRoute(koinViewModel(), timeZone, onBack = back)
                     }
                     composable<EventDestination> {
                         EventRoute(koinViewModel(), timeZone, onBack = back, onBuy = { navController.navigate(BuyDestination(it)) })
