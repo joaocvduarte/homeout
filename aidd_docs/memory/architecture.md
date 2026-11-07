@@ -5,7 +5,8 @@
 - Kotlin Multiplatform with Compose Multiplatform: one shared codebase for Android, iOS and Web (Kotlin/Wasm).
 - kotlinx-datetime for every date and time. Events are shown in `Europe/Lisbon`.
 - Navigation Compose with `@Serializable` destinations (kotlinx-serialization).
-- Coroutines: `StateFlow` state holders.
+- Koin for dependency injection, from shared code on every platform.
+- Multiplatform `lifecycle` ViewModels, one per screen, exposing `StateFlow`.
 
 ## How it fits together
 
@@ -23,8 +24,13 @@ flowchart LR
 - Clean architecture: `domain` has no Compose, platform or data dependency. Use cases (`GetUpcomingEvents`, `GetEvent`, `CountEventsThisWeek`) take an `EventRepository`, a `Clock` and a `TimeZone`.
 - There's no backend yet. `SampleEventRepository` dates its events today and tomorrow from the clock, so they always look upcoming. Real data will come from a backend later.
 - Poster colors are event data (ARGB `Long` in `PosterColors`), not design tokens, so `domain` stays free of Compose.
-- Wiring is manual: `App` builds the repository, use cases and `HomeStateHolder` with `remember`. There's no DI framework.
-- `App` is a shell: background, flower border and header stay fixed while a `NavHost` swaps Home and the event page beneath. `HomeStateHolder` lives outside the `NavHost`, so the filter and search survive going back.
+- Koin over Hilt: Hilt can't inject shared multiplatform code. There's one Koin module per layer:
+  - `dataModule` in `data`
+  - `domainModule` in `composeApp/di`, holding the use cases plus the `Clock` and `Europe/Lisbon` `TimeZone`. It sits there so `domain` stays free of DI code.
+  - `presentationModule` in `composeApp/di`, holding the ViewModels
+- Koin starts once per process through `initKoin()`: `HomeoutApplication` on Android, `main()` on Web, and guarded in `MainViewController` on iOS. Never start it from a composable or an activity.
+- `App` is a shell: background, flower border and header stay fixed while a `NavHost` swaps Home and the event page beneath. Each destination takes its ViewModel with `koinViewModel()`, scoped to its back-stack entry, so Home's filter survives going back and activity recreation.
+- `EventViewModel` reads its id from `SavedStateHandle.toRoute<EventDestination>()`.
 - Web binds browser history through the `onNavHostReady` hook in `wasmJsMain/main.kt`. Android system back comes from the `NavHost` itself.
 
 ## Gotchas

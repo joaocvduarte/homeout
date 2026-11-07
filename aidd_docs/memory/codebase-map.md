@@ -14,8 +14,8 @@ flowchart TD
 - `domain`: the event model and use cases. Pure Kotlin.
 - `data`: the local sample events (`SampleEventRepository`).
 - `designsystem`: colors, type scale, theme, buttons, icons, the flower border, fonts and licenses. Its `Res` is internal, so composeApp reaches images only through designsystem components.
-- `composeApp`: the app shell (`App`, `AppHeader`, `Destinations`), `home/` and `event/` screens, plus the iOS and Web entry points.
-- `androidApp`: the Android entry point (`MainActivity`).
+- `composeApp`: the app shell (`App`, `AppHeader`, `Destinations`), `di/` (Koin modules, `initKoin`), the `home/` and `event/` screens with their ViewModels, plus the iOS and Web entry points.
+- `androidApp`: the Android entry point (`HomeoutApplication` starts Koin, `MainActivity` shows the app), and its instrumented `RecreationTest`.
 - `iosApp`: the Xcode project that hosts `MainViewController`.
 - `aidd_docs/specs/`: one spec per feature. `aidd_docs/tasks/<yyyy_mm>/`: plans and phases.
 

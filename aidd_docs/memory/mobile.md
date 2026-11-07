@@ -18,7 +18,7 @@ flowchart LR
 
 ## State and storage
 
-- In-memory only: `StateFlow` holders and saveable Compose state. Nothing is stored on the device.
+- In-memory only: ViewModels (which survive activity recreation) and saveable Compose state. Nothing is stored on the device.
 
 ## Build and release
 

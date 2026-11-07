@@ -7,10 +7,10 @@ Find upcoming music and food events. Kotlin Multiplatform with Compose Multiplat
 | Module | Holds | Depends on |
 | --- | --- | --- |
 | `domain` | Event model and use cases. No UI. | kotlinx-datetime |
-| `data` | Local sample events | `domain` |
+| `data` | Local sample events and their Koin module | `domain`, Koin |
 | `designsystem` | Colors, type, theme, buttons, icons | Compose |
-| `composeApp` | Home and event screens, navigation between them, iOS and Web entry points | all of the above |
-| `androidApp` | Android entry point | `composeApp` |
+| `composeApp` | Home and event screens with their ViewModels, navigation, the domain and presentation Koin modules, iOS and Web entry points | all of the above |
+| `androidApp` | Android entry point; starts Koin in its Application class | `composeApp` |
 
 ## Requirements
 
@@ -27,6 +27,7 @@ Find upcoming music and food events. Kotlin Multiplatform with Compose Multiplat
 | Domain and data tests (JVM, Wasm) | `./gradlew :domain:allTests :data:allTests` |
 | UI tests in headless Chrome | `./gradlew :designsystem:wasmJsBrowserTest :composeApp:wasmJsBrowserTest` |
 | UI tests on a running emulator or device | `./gradlew :designsystem:connectedAndroidDeviceTest :composeApp:connectedAndroidDeviceTest` |
+| Recreation test on a running emulator or device | `./gradlew :androidApp:connectedDebugAndroidTest` |
 | Run on Android | `./gradlew :androidApp:installDebug` |
 | Run on Web | `./gradlew :composeApp:wasmJsBrowserDevelopmentRun` |
 | Run on iOS (macOS only) | open `iosApp/iosApp.xcodeproj` in Xcode and run |

@@ -15,6 +15,7 @@
 | Order | Command | Checks |
 | ----- | ------- | ------ |
 | 1 | `./gradlew :designsystem:connectedAndroidDeviceTest :composeApp:connectedAndroidDeviceTest` | UI and pixel tests on Android, including system back |
+| 2 | `./gradlew :androidApp:connectedDebugAndroidTest` | ViewModel state survives activity recreation |
 
 ## Behavior
 
