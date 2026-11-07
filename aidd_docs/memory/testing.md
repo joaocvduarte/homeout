@@ -19,10 +19,12 @@
 
 - Tests sit beside their module (`<module>/src/commonTest/...`). Fixed instants live in each test, usually Friday 2026-11-13 19:00 UTC.
 - Koin in tests: call `withKoin(clock, timeZone, overrides)` (`composeApp/src/commonTest/.../KoinTestHarness.kt`) inside `runComposeUiTest` or `runTest`, never around it, because Web tests are async. It defaults the time zone to UTC and stops Koin afterwards. ViewModel unit tests set `Dispatchers.setMain`.
-- Rows and key nodes carry test tags (`event-<id>`, `search`, `event-page`, `ticket-bar`).
+- Rows and key nodes carry test tags: `event-<id>`, `thumb-<id>`, `search`, `event-page`, `ticket-bar`, `tab-<Label>`, `tickets-badge`, `tickets-<eventId>`, `ticket-<code>`, `confirmation`, `method-<METHOD>`, `quantity`, `qr-position` and `qr-pager`.
+- Place orders in a test through Koin: `KoinPlatform.getKoin().get<PlaceOrder>()(…)` inside `withKoin`.
 - Web test gotchas:
   - Mocha's timeout is raised to 10 s in `composeApp/karma.config.d`.
   - `waitUntil` starves the browser's event loop, so history tests yield with `window.setTimeout`.
+  - Browser-history tests reset the URL first (`history.replaceState`), because the app reads its first route from the fragment a previous test left.
   - Fonts load asynchronously, so font-family equality isn't reliable.
 - Test the transition timing with `mainClock.autoAdvance = false`, by checking which screens are present. Layout bounds don't show the slide.
 
@@ -33,5 +35,6 @@
 ## Browser QA
 
 - Entry: `./gradlew :composeApp:wasmJsBrowserDevelopmentRun` serves http://localhost:8080/. An event opens directly at `#app.homeout.EventDestination/<id>`.
+- The instrumented `RecreationTest` shares one process and its in-memory orders across its tests. Only one of them buys.
 - Auth: none.
 - State: `SampleEventRepository`, dated from the current clock. A reload resets everything.

@@ -46,4 +46,32 @@ class SystemBackTest {
         onNodeWithText("Food").assertIsSelected()
         onNodeWithTag("search").assertTextEquals("Petiscos")
     }
+
+    @Test
+    fun systemBackLeavesBuyAndThenAQrCode() = runAndroidComposeUiTest<ComponentActivity> {
+        withKoin(clock, TimeZone.of("Europe/Lisbon")) {
+            setContent { App() }
+            onNodeWithTag("event-fado-old-cistern").performClick()
+            waitForIdle()
+            onNodeWithText("Buy tickets").performClick()
+            waitForIdle()
+            onNodeWithText("BUY TICKETS").assertExists()
+            runOnUiThread { activity!!.onBackPressedDispatcher.onBackPressed() }
+            waitForIdle()
+            onNodeWithText("FADO AT THE OLD CISTERN").assertExists()
+            assertEquals(0, onAllNodes(hasText("BUY TICKETS")).fetchSemanticsNodes().size)
+
+            onNodeWithText("Buy tickets").performClick()
+            waitForIdle()
+            onNodeWithText("Pay €18").performClick()
+            waitForIdle()
+            onNodeWithTag("ticket-HO-FADO-001").performClick()
+            waitForIdle()
+            onNodeWithText("YOUR TICKET").assertExists()
+            runOnUiThread { activity!!.onBackPressedDispatcher.onBackPressed() }
+            waitForIdle()
+            onNodeWithText("YOUR TICKETS").assertExists()
+            assertEquals(0, onAllNodes(hasText("YOUR TICKET")).fetchSemanticsNodes().size)
+        }
+    }
 }

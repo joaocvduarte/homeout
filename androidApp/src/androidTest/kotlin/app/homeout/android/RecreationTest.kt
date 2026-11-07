@@ -66,4 +66,35 @@ class RecreationTest {
         rule.waitForIdle()
         assertHomeKeptItsState()
     }
+
+    @Test
+    fun buyTicketsAndQrKeepTheirStateWhenTheActivityIsRecreated() {
+        rule.onNodeWithTag("event-fado-old-cistern").performClick()
+        rule.waitForIdle()
+        rule.onNodeWithText("Buy tickets").performClick()
+        rule.waitForIdle()
+        rule.onNodeWithContentDescription("Add a ticket").performClick()
+        rule.onNodeWithContentDescription("Add a ticket").performClick()
+        rule.onNodeWithTag("method-GOOGLE_WALLET").performClick()
+        rule.waitForIdle()
+
+        rule.activityRule.scenario.recreate()
+        rule.waitForIdle()
+        rule.onNodeWithText("Pay €54").assertExists()
+        rule.onNodeWithTag("method-GOOGLE_WALLET").assertIsSelected()
+
+        rule.onNodeWithText("Pay €54").performClick()
+        rule.waitForIdle()
+        rule.activityRule.scenario.recreate()
+        rule.waitForIdle()
+        rule.onNodeWithTag("tab-Tickets").assertIsSelected()
+        rule.onNodeWithText("Payment confirmed. 3 tickets for Fado at the Old Cistern added.", useUnmergedTree = true).assertExists()
+        rule.onNodeWithText("Ticket 3 of 3").assertExists()
+
+        rule.onNodeWithTag("ticket-HO-FADO-002").performClick()
+        rule.waitForIdle()
+        rule.activityRule.scenario.recreate()
+        rule.waitForIdle()
+        rule.onNodeWithTag("qr-position").assertTextEquals("Fado at the Old Cistern · Ticket 2 of 3")
+    }
 }

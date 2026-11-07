@@ -9,7 +9,9 @@
 ```mermaid
 flowchart LR
   Home -->|tap an event| Event[Event page]
-  Event -->|Back, system back| Home
+  Event -->|Buy tickets| Buy
+  Buy -->|Pay or Reserve| Tickets
+  Tickets -->|tap a ticket| QR[QR code]
 ```
 
 ## Native access
