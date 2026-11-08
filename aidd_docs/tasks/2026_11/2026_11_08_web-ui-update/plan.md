@@ -1,6 +1,6 @@
 ---
 objective: "Web shows the single-page homeout website design, fed by the app's events, while the phone app stays unchanged."
-status: in-progress
+status: implemented
 ---
 
 # Plan: Web edition UI update
