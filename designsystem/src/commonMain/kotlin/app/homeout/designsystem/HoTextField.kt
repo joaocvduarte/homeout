@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -37,6 +38,7 @@ private val FieldShape = RoundedCornerShape(8.dp)
  * A labelled text field from the design: 48 dp, the `field` fill, a 1 dp border that turns `error` when [error]
  * or [invalid] is set. The caller owns [state], so a password's state can be a plain `remember` that never
  * reaches saved state. [modifier] applies to the field itself, so a test tag lands on the node that takes text.
+ * [labelTrailing] sits at the end of the label's line, such as a "Forgot password?" link.
  * [error] replaces [supporting], the hint under the field; [invalid] alone only colors
  * the border and the hint. [onFocusLost] fires when the field had focus and loses it.
  */
@@ -51,6 +53,7 @@ fun HoTextField(
     supporting: String? = null,
     invalid: Boolean = false,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    labelTrailing: (@Composable () -> Unit)? = null,
     onFocusLost: () -> Unit = {},
 ) {
     val colors = HoTheme.colors
@@ -88,7 +91,11 @@ fun HoTextField(
     }
 
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        HoText(label, HoTypeRole.LabelLarge, style = TextStyle(fontSize = 13.sp, fontWeight = FontWeight.Medium))
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            HoText(label, HoTypeRole.LabelLarge, style = TextStyle(fontSize = 13.sp, fontWeight = FontWeight.Medium))
+            Box(Modifier.weight(1f))
+            labelTrailing?.invoke()
+        }
         if (password) {
             BasicSecureTextField(
                 state = state,
