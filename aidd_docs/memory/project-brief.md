@@ -2,7 +2,7 @@
 
 ## What it is
 
-- homeout: an app where people in Lisbon find upcoming music and food events, for Android, iOS and Web. Web only shows events: buying and accounts are in the phone app.
+- homeout: an app where people in Lisbon find upcoming music and food events, for Android, iOS and Web. Web is a one-page website: buying and accounts are in the phone app.
 
 ## Why it exists
 
@@ -32,7 +32,7 @@
 - Buy tickets: a 1-to-8 counter and a payment method, or a reservation for a free event. It lands on the Tickets tab with a confirmation.
 - Tickets tab: tickets grouped by event, with a count badge on the tab. Each ticket opens its QR code, swipeable between that event's tickets.
 - Log in and Create account (phone app): the first screens unless someone is signed in. Email and password are checked against accounts on the phone: the button stays disabled until the email is valid and the password has 8 characters, and Create account also needs the terms. Errors show after a field loses focus, and a wrong login or a taken email shows an alert. The Google buttons are fake: they sign straight in. Forgot password does nothing yet.
-- Web edition: Home and the event page only, with no account, no tabs and no buying. Buy tickets opens Get the app, with App Store and Google Play badges that don't link anywhere yet.
+- Web edition: a single scrolling website with a nav, hero, app showcase, next events (the app's upcoming events), how it works, a get-the-app call to action and a footer. It always uses one look, follows `prefers-reduced-motion`, and offers no buying or accounts: every ticket, download or see-all action leads to the get-the-app section. The store buttons go nowhere yet, and the footer has no Terms or Privacy.
 - The theme follows the phone's light or dark setting.
 - Orders live only while the app runs, and the QR codes are placeholders. Both wait for a backend. Accounts and the session live on the phone and don't sync between devices.
 - Share, Save, notifications and the Profile tab don't do anything yet.

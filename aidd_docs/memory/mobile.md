@@ -2,7 +2,7 @@
 
 ## Platform
 
-- Cross-platform with Compose Multiplatform: Android (`androidApp`) and iOS (`iosApp`) share all logic and UI with Web.
+- Cross-platform with Compose Multiplatform: Android (`androidApp`) and iOS (`iosApp`) share the domain, data and design system with Web, but not its UI.
 
 ## Navigation
 

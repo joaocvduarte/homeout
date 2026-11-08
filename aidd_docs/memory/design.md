@@ -2,7 +2,7 @@
 
 ## System
 
-- Source of truth: the Claude Design canvas "Event Management UI Library" (https://claude.ai/artifact/1krt444a78B46kwb7jYipL), with the pages homeout UI Library, Button Set and Home Screen. A visual change goes into the design first, then into the app.
+- Source of truth: the Claude Design canvas "Event Management UI Library" (https://claude.ai/artifact/1krt444a78B46kwb7jYipL), with the pages homeout UI Library, Button Set, Home Screen and homeout Website. A visual change goes into the design first, then into the app.
 - Read the canvas with the Artifact tool (`read` with `path: project/<page>`) before UI work, and check its version against the one the last plan cites.
 - The `designsystem` module implements it with Compose. Screens use `HoTheme`, `HoText` and `HoButton`, never raw Material.
 
@@ -13,6 +13,13 @@
 - Fonts, icons (Phosphor) and the logo flower images live in `designsystem/src/commonMain/composeResources`, with licenses in `designsystem/licenses/`.
 - `HoGlyphs` holds the design's own 24-grid stroke icons as `ImageVector`s: tabs (taking stroke and fill), ticket, counter, chevrons, check, QR mark, and the payment methods, the account mark on the Google buttons and the alert mark. Phosphor icons stay in `HoIcons`.
 - The design's names map to the tokens: `accent` is `primary`, `accentText` is `onPrimaryText`, `accentTint` is `primaryPressed`, `tonal` is `secondaryContainer`, `hot` is `tertiary` and `onHot` is `onTertiary`.
+
+## Website (Web only)
+
+- The "homeout Website" page is the Web edition's design: one look in both themes, built in `composeApp/.../website/`, not in `designsystem`.
+- `WebsiteColors` holds its fixed palette, and `WebsiteColorsTest` enforces AA on every text and background pair. `PillButton` is its full-round button (hover lift, focus ring), used only on Web.
+- It reuses `HoFlower(part)` (a logo flower at full strength, decorative) and `HoGlyphs.ArrowDown` from the design system.
+- A close match is accepted: the nav's backdrop blur has no Compose equivalent, so the 0.86 fill stands alone.
 
 ## Components
 
