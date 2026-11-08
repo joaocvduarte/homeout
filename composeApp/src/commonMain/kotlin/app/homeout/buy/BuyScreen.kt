@@ -61,6 +61,7 @@ import app.homeout.designsystem.HoText
 import app.homeout.designsystem.HoTheme
 import app.homeout.designsystem.HoTypeRole
 import app.homeout.domain.PaymentMethod
+import app.homeout.event.EventSummary
 import app.homeout.event.RoundButton
 import app.homeout.event.fullVenue
 import app.homeout.event.posterDate
@@ -122,7 +123,7 @@ internal fun BuyScreen(
                     style = TextStyle(fontSize = 34.sp, lineHeight = 34.sp, letterSpacing = 0.5.sp),
                 )
             }
-            Summary(state, timeZone)
+            EventSummary(state.detail, timeZone)
             Counter(state, onAdd, onRemove)
             if (state.free) {
                 HoText(
@@ -138,26 +139,6 @@ internal fun BuyScreen(
             }
         }
         TotalBar(state, onPay)
-    }
-}
-
-@Composable
-private fun Summary(state: BuyState, timeZone: TimeZone) {
-    val colors = HoTheme.colors
-    val event = state.detail.event
-    Row(
-        Modifier.fillMaxWidth().background(colors.surface, RoundedCornerShape(8.dp)).padding(10.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(Modifier.size(56.dp).clip(RoundedCornerShape(6.dp)).background(Color(event.poster.background))) {
-            HoPosterFlower(Modifier.align(Alignment.TopEnd).offset(x = 8.dp).width(64.dp))
-        }
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            HoText(event.title, HoTypeRole.TitleMedium, style = TextStyle(fontSize = 15.sp, lineHeight = 20.sp), maxLines = 1)
-            HoText(event.posterDate(timeZone), HoTypeRole.BodyMedium, color = colors.onSurfaceVariant, style = TextStyle(fontSize = 13.sp, lineHeight = 18.sp))
-            HoText(state.detail.fullVenue(), HoTypeRole.BodyMedium, color = colors.onSurfaceVariant, style = TextStyle(fontSize = 13.sp, lineHeight = 18.sp), maxLines = 1)
-        }
     }
 }
 

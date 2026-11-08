@@ -15,6 +15,6 @@ fun main() {
     // Web has no accounts, so its store stays empty and is never read.
     initKoin(module { single<KeyValueStore> { InMemoryKeyValueStore() } })
     ComposeViewport(document.body!!) {
-        App(onNavHostReady = { it.bindToBrowserNavigation() })
+        App(edition = AppEdition.Web, onNavHostReady = { it.bindToBrowserNavigation() })
     }
 }
