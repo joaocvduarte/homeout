@@ -1,5 +1,7 @@
 package app.homeout.di
 
+import app.homeout.auth.LoginViewModel
+import app.homeout.auth.SignupViewModel
 import app.homeout.buy.BuyViewModel
 import app.homeout.event.EventViewModel
 import app.homeout.home.HomeViewModel
@@ -11,6 +13,8 @@ import org.koin.dsl.module
 
 /** The presentation layer: one ViewModel per screen. */
 val presentationModule = module {
+    viewModelOf(::LoginViewModel)
+    viewModelOf(::SignupViewModel)
     viewModelOf(::RootViewModel)
     viewModelOf(::HomeViewModel)
     viewModelOf(::TicketsViewModel)
