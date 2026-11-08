@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import app.homeout.designsystem.HoFlower
@@ -39,9 +40,16 @@ internal fun HeroSection(layout: WebsiteLayout, goTo: (Section) -> Unit, modifie
             HoFlower(HoFlowerPart.Mid, Modifier.align(Alignment.TopCenter).width(layout.clamp(220f, 30f, 440f)))
             HoFlower(HoFlowerPart.Right, Modifier.align(Alignment.TopEnd).width(layout.clamp(180f, 26f, 380f)))
         }
+        val motion = LocalSiteMotion.current
         Wrap(layout, Modifier.align(Alignment.Center)) {
             Column(
-                Modifier.fillMaxWidth().padding(
+                Modifier.fillMaxWidth().graphicsLayer {
+                    val f = heroFrame((motion?.scroll?.value ?: 0).toFloat(), layout.height.toPx(), motion?.reduce ?: true)
+                    translationY = f.translateY * density
+                    scaleX = f.scale
+                    scaleY = f.scale
+                    alpha = f.alpha
+                }.padding(
                     top = WebsiteLayout.NavHeight + (layout.height * 0.18f).coerceIn(140.dp, 200.dp),
                     bottom = 80.dp,
                 ),

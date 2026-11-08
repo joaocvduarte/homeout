@@ -17,7 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -52,7 +52,7 @@ internal fun EventsSection(
         Wrap(layout) {
             Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(40.dp)) {
                 FlowRow(
-                    Modifier.fillMaxWidth(),
+                    Modifier.fillMaxWidth().reveal(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                     itemVerticalAlignment = Alignment.Bottom,
@@ -89,13 +89,13 @@ private fun EventCards(layout: WebsiteLayout, events: List<WebsiteEvent>, timeZo
             contentPadding = PaddingValues(horizontal = layout.gutter),
             horizontalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            items(events, key = { it.id }) { EventCard(layout, it, timeZone, goTo, Modifier.width(layout.width * 0.82f)) }
+            itemsIndexed(events, key = { _, item -> item.id }) { i, item -> EventCard(layout, item, timeZone, goTo, Modifier.width(layout.width * 0.82f).reveal(i * 90)) }
         }
     } else {
         Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
-            events.chunked(layout.eventColumns).forEach { row ->
+            events.chunked(layout.eventColumns).forEachIndexed { r, row ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                    row.forEach { EventCard(layout, it, timeZone, goTo, Modifier.weight(1f)) }
+                    row.forEachIndexed { c, item -> EventCard(layout, item, timeZone, goTo, Modifier.weight(1f).reveal((r * layout.eventColumns + c) * 90)) }
                     repeat(layout.eventColumns - row.size) { Spacer(Modifier.weight(1f)) }
                 }
             }

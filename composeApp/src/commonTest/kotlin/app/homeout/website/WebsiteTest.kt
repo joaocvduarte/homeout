@@ -10,6 +10,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertCountEquals
@@ -45,9 +47,9 @@ class WebsiteTest {
     private val ids = listOf("fado-old-cistern", "rooftop-vinyl", "night-market-river", "petiscos-tasting")
 
     /** [dark] wraps the page in an outer theme, to prove the website ignores it. */
-    private fun ComposeUiTest.show(width: Int, height: Int, dark: Boolean? = null) = setContent {
+    private fun ComposeUiTest.show(width: Int, height: Int, dark: Boolean? = null, reduceMotion: Boolean = false) = setContent {
         val page: @Composable () -> Unit = {
-            Box(Modifier.wrapContentSize(Alignment.TopStart, unbounded = true).size(width.dp, height.dp)) { Website(koinViewModel(), lisbon) }
+            Box(Modifier.wrapContentSize(Alignment.TopStart, unbounded = true).size(width.dp, height.dp)) { Website(koinViewModel(), lisbon, reduceMotion) }
         }
         if (dark == null) page() else HoTheme(darkTheme = dark, content = page)
     }
@@ -223,5 +225,43 @@ class WebsiteTest {
     fun theLookIsTheSameInADarkSetting() = runComposeUiTest {
         val expected = listOf(WebsiteColors.page, WebsiteColors.pill, WebsiteColors.lightSection)
         withKoin(friday, lisbon, signedIn = false) { assertEquals(expected, drawnColors(dark = true)) }
+    }
+
+    private fun ComposeUiTest.navState() =
+        onNodeWithTag("website-nav").fetchSemanticsNode().config.getOrNull(SemanticsProperties.StateDescription)
+
+    @Test
+    fun theNavTurnsTranslucentOncePastTwentyFourDpOfScroll() = runComposeUiTest {
+        withKoin(friday, lisbon, signedIn = false) {
+            show(1000, 700)
+            assertEquals("top", navState())
+            onNodeWithText("See what's on").performSemanticsAction(SemanticsActions.OnClick)
+            waitForIdle()
+            assertEquals("scrolled", navState())
+            homeLink().performClick()
+            waitForIdle()
+            assertEquals("top", navState())
+        }
+    }
+
+    @Test
+    fun withReducedMotionEverythingIsShownAtOnceAndAnchorsJump() = runComposeUiTest {
+        withKoin(friday, lisbon, signedIn = false) {
+            mainClock.autoAdvance = false
+            show(1000, 700, reduceMotion = true)
+            mainClock.advanceTimeByFrame()
+            // Nothing is hidden on the first frame, so the cards carry no hiding state.
+            ids.forEach { id ->
+                assertTrue(
+                    onNodeWithTag("website-event-$id").fetchSemanticsNode().config.getOrNull(SemanticsProperties.StateDescription) != "hidden",
+                    "$id is hidden",
+                )
+            }
+            onNodeWithText("See what's on").performSemanticsAction(SemanticsActions.OnClick)
+            mainClock.advanceTimeByFrame()
+            mainClock.advanceTimeByFrame()
+            onNodeWithTag("section-events").assertTopPositionInRootIsEqualTo(0.dp)
+            assertEquals("scrolled", navState())
+        }
     }
 }

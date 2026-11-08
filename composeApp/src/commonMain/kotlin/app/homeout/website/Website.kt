@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
@@ -16,7 +18,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.dp
 import app.homeout.designsystem.HoTheme
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
@@ -60,15 +64,20 @@ fun Website(viewModel: WebsiteViewModel, timeZone: TimeZone, reduceMotion: Boole
                     if (reduceMotion) scroll.scrollTo(top) else scroll.animateScrollTo(top)
                 }
             }
+            val density = LocalDensity.current
+            val scrolled by remember { derivedStateOf { scroll.value > with(density) { 24.dp.toPx() } } }
+            val motion = remember(scroll, reduceMotion, density) { SiteMotion(scroll, with(density) { layout.height.toPx() }, reduceMotion) }
+            CompositionLocalProvider(LocalSiteMotion provides motion) {
             Column(Modifier.fillMaxSize().verticalScroll(scroll)) {
                 HeroSection(layout, goTo, Modifier.anchored(anchors, Section.Top).testTag("section-top"))
-                ShowcaseSection(layout, state.events, timeZone, anchors, scroll, Modifier.anchored(anchors, Section.Showcase).testTag("section-showcase"))
+                ShowcaseSection(layout, state.events, timeZone, anchors, Modifier.anchored(anchors, Section.Showcase).testTag("section-showcase"))
                 EventsSection(layout, state, timeZone, goTo, Modifier.anchored(anchors, Section.Events).testTag("section-events"))
                 StepsSection(layout, Modifier.anchored(anchors, Section.How).testTag("section-how"))
                 GetAppSection(layout, goTo, Modifier.anchored(anchors, Section.App).testTag("section-app"))
                 WebsiteFooter(layout, goTo, Modifier.testTag("website-footer"))
             }
-            WebsiteNav(layout, goTo, Modifier.align(Alignment.TopStart).testTag("website-nav"))
+            }
+            WebsiteNav(layout, goTo, scrolled, Modifier.align(Alignment.TopStart).testTag("website-nav"))
         }
     }
 }

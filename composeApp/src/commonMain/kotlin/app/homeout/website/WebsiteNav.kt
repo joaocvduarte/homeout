@@ -1,5 +1,7 @@
 package app.homeout.website
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +13,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -39,8 +45,20 @@ internal fun Wordmark(size: Dp, padding: PaddingValues, letterSpacing: Float, li
 
 /** 72 high over the page: the wordmark (to the top), the section links when there is room, and the Get the app pill. */
 @Composable
-internal fun WebsiteNav(layout: WebsiteLayout, goTo: (Section) -> Unit, modifier: Modifier = Modifier) {
-    Box(modifier.fillMaxWidth().height(WebsiteLayout.NavHeight)) {
+internal fun WebsiteNav(layout: WebsiteLayout, goTo: (Section) -> Unit, scrolled: Boolean, modifier: Modifier = Modifier) {
+    // Past 24 dp of scroll the nav gets the design's 0.86 page fill and a faint bottom line, over 240 ms.
+    val fill by animateColorAsState(if (scrolled) WebsiteColors.page.copy(alpha = 0.86f) else WebsiteColors.page.copy(alpha = 0f), tween(240), label = "nav")
+    val line by animateColorAsState(if (scrolled) WebsiteColors.ink.copy(alpha = 0.12f) else WebsiteColors.ink.copy(alpha = 0f), tween(240), label = "navLine")
+    Box(
+        modifier
+            .fillMaxWidth()
+            .height(WebsiteLayout.NavHeight)
+            .semantics { stateDescription = if (scrolled) "scrolled" else "top" }
+            .drawBehind {
+                drawRect(fill)
+                drawLine(line, Offset(0f, size.height - 0.5.dp.toPx()), Offset(size.width, size.height - 0.5.dp.toPx()), 1.dp.toPx())
+            },
+    ) {
         Wrap(layout, Modifier.height(WebsiteLayout.NavHeight)) {
             Row(
                 Modifier.fillMaxWidth().height(WebsiteLayout.NavHeight),

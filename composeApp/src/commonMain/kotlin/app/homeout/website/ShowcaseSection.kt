@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import app.homeout.designsystem.HoPosterFlower
@@ -46,11 +46,17 @@ internal fun ShowcaseSection(
     events: List<WebsiteEvent>,
     timeZone: TimeZone,
     anchors: Anchors,
-    scroll: ScrollState,
     modifier: Modifier = Modifier,
 ) {
+    val motion = LocalSiteMotion.current
+    val reduce = motion?.reduce ?: true
+    val scroll = motion?.scroll
     val sectionHeight = layout.height * 2.4f
     val slack = sectionHeight - layout.height
+    val progress: GraphicsLayerScope.() -> Float = {
+        showcaseProgress((scroll?.value ?: 0).toFloat(), anchors[Section.Showcase].toFloat(), layout.height.toPx())
+    }
+    val frame: GraphicsLayerScope.() -> ShowcaseFrame = { showcaseFrame(progress(), reduce) }
     val posters = fanOrder.mapNotNull { events.getOrNull(it)?.event }
     Box(modifier.fillMaxWidth().height(sectionHeight)) {
         Box(
@@ -58,37 +64,54 @@ internal fun ShowcaseSection(
                 .fillMaxWidth()
                 .height(layout.height)
                 .graphicsLayer {
-                    val pin = (scroll.value - anchors[Section.Showcase]).coerceIn(0, slack.roundToPx().coerceAtLeast(0))
+                    val pin = ((scroll?.value ?: 0) - anchors[Section.Showcase]).coerceIn(0, slack.roundToPx().coerceAtLeast(0))
                     translationY = pin.toFloat()
                 }
                 .clipToBounds(),
             contentAlignment = Alignment.Center,
         ) {
-            Box(Modifier.matchParentSize().background(WebsiteColors.panel))
+            Box(
+                Modifier.matchParentSize().graphicsLayer {
+                    val f = frame()
+                    scaleX = f.panelScale
+                    scaleY = f.panelScale
+                    shape = RoundedCornerShape(f.panelRadius.dp)
+                    clip = true
+                }.background(WebsiteColors.panel),
+            )
             Wrap(layout) {
-                ShowcaseContent(layout, posters, timeZone)
+                ShowcaseContent(layout, posters, timeZone, frame)
             }
         }
     }
 }
 
 @Composable
-private fun ShowcaseContent(layout: WebsiteLayout, posters: List<Event>, timeZone: TimeZone) {
+private fun ShowcaseContent(layout: WebsiteLayout, posters: List<Event>, timeZone: TimeZone, frame: GraphicsLayerScope.() -> ShowcaseFrame) {
     val gap = layout.clamp(24f, 6f, 96f)
     BoxWithConstraints(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         val available = maxWidth
         val fanSize = fanWidth * layout.fanScale
         val sideBySide = available >= 320.dp + gap + fanSize
-        val copy = @Composable { modifier: Modifier -> ShowcaseCopy(layout, modifier) }
+        val copy = @Composable { modifier: Modifier ->
+            ShowcaseCopy(
+                layout,
+                modifier.graphicsLayer {
+                    val f = frame()
+                    alpha = f.copyAlpha
+                    translationY = f.copyOffset * density
+                },
+            )
+        }
         if (sideBySide) {
             Row(horizontalArrangement = Arrangement.spacedBy(gap), verticalAlignment = Alignment.CenterVertically) {
                 copy(Modifier.widthIn(max = (available - gap - fanSize).coerceAtMost(480.dp)))
-                PosterFan(layout, posters, timeZone)
+                PosterFan(layout, posters, timeZone, frame)
             }
         } else {
             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(gap)) {
                 copy(Modifier.widthIn(max = 480.dp))
-                PosterFan(layout, posters, timeZone)
+                PosterFan(layout, posters, timeZone, frame)
             }
         }
     }
@@ -113,9 +136,12 @@ private fun ShowcaseCopy(layout: WebsiteLayout, modifier: Modifier) {
 
 /** Three posters at the design's final fan: ±92 apart, ±9° tilted, the sides 22 lower. */
 @Composable
-private fun PosterFan(layout: WebsiteLayout, posters: List<Event>, timeZone: TimeZone) {
+private fun PosterFan(layout: WebsiteLayout, posters: List<Event>, timeZone: TimeZone, frame: GraphicsLayerScope.() -> ShowcaseFrame) {
     val scale = layout.fanScale
-    Box(Modifier.size(fanWidth * scale, fanHeight * scale), contentAlignment = Alignment.Center) {
+    Box(
+        Modifier.size(fanWidth * scale, fanHeight * scale).graphicsLayer { translationY = frame().posterRise * density },
+        contentAlignment = Alignment.Center,
+    ) {
         Box(Modifier.requiredSize(fanWidth, fanHeight).graphicsLayer { scaleX = scale; scaleY = scale }) {
             posters.forEachIndexed { i, event ->
                 val k = i - (posters.size - 1) / 2f
@@ -124,9 +150,10 @@ private fun PosterFan(layout: WebsiteLayout, posters: List<Event>, timeZone: Tim
                     Modifier
                         .align(Alignment.Center)
                         .graphicsLayer {
-                            translationX = k * 92f * density
-                            translationY = kotlin.math.abs(k) * 22f * density
-                            rotationZ = k * 9f
+                            val card = frame().fan(k)
+                            translationX = card.dx * density
+                            translationY = card.dy * density
+                            rotationZ = card.rotation
                         },
                 )
             }

@@ -33,12 +33,12 @@ internal fun StepsSection(layout: WebsiteLayout, modifier: Modifier = Modifier) 
             Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(40.dp)) {
                 SiteText(
                     "From “what's on?” to through the door in three taps.", HoTypeRole.TitleLarge, layout.clamp(34f, 5f, 64f),
-                    WebsiteColors.darkInk, Modifier.widthIn(max = 820.dp), lineHeight = 1.05f, letterSpacing = -0.02f,
+                    WebsiteColors.darkInk, Modifier.widthIn(max = 820.dp).reveal(), lineHeight = 1.05f, letterSpacing = -0.02f,
                 )
                 Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                    steps.chunked(layout.stepColumns).forEach { row ->
+                    steps.chunked(layout.stepColumns).forEachIndexed { r, row ->
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                            row.forEach { StepCard(it, Modifier.weight(1f)) }
+                            row.forEachIndexed { c, step -> StepCard(step, Modifier.weight(1f).reveal((r * layout.stepColumns + c) * 110)) }
                             repeat(layout.stepColumns - row.size) { Spacer(Modifier.weight(1f)) }
                         }
                     }

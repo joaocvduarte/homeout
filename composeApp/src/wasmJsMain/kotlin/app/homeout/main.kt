@@ -16,6 +16,9 @@ fun main() {
     // Web has no accounts, so its store stays empty and is never read.
     initKoin(module { single<KeyValueStore> { InMemoryKeyValueStore() } })
     ComposeViewport(document.body!!) {
-        Website(koinViewModel(), koinInject())
+        Website(koinViewModel(), koinInject(), reduceMotion = prefersReducedMotion())
     }
 }
+
+/** Whether the visitor asked their system for less motion. */
+private fun prefersReducedMotion(): Boolean = js("window.matchMedia('(prefers-reduced-motion: reduce)').matches")

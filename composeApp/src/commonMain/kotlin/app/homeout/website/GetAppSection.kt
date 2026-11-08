@@ -56,14 +56,15 @@ internal fun GetAppSection(layout: WebsiteLayout, goTo: (Section) -> Unit, modif
             ) {
                 SiteText(
                     "Head out\ntonight", HoTypeRole.DisplayLarge, layout.clamp(60f, 11f, 160f), WebsiteColors.ink,
-                    lineHeight = 0.9f, letterSpacing = 0.01f, align = TextAlign.Center,
+                    lineHeight = 0.9f, letterSpacing = 0.01f, align = TextAlign.Center, modifier = Modifier.reveal(),
                 )
                 SiteText(
                     "Free on iPhone and Android. Log in with your Google account or create one in a minute.",
                     HoTypeRole.BodyLarge, 18.dp, WebsiteColors.muted,
-                    modifier = Modifier.widthIn(max = 520.dp), lineHeight = 1.5f, align = TextAlign.Center,
+                    modifier = Modifier.widthIn(max = 520.dp).reveal(), lineHeight = 1.5f, align = TextAlign.Center,
                 )
                 FlowRow(
+                    modifier = Modifier.reveal(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
