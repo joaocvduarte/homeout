@@ -1,11 +1,11 @@
 ---
 objective: "homeout's Home screen (design variant A) runs on Android and Web from one Kotlin Multiplatform codebase that also targets iOS (built and tested later on macOS, per the spec), with every spec behavior covered by passing tests."
-status: pending
+status: implemented
 ---
 
 # Plan: homeout Home screen
 
-Source: `aidd_docs/tasks/2026_11/2026_11_06_homeout-event-app/spec.md` and the design https://claude.ai/artifact/1krt444a78B46kwb7jYipL (pages homeout UI Library, Button Set, Home Screen; version 1793993015-73d9).
+Source: `aidd_docs/specs/home-screen.md` and the design https://claude.ai/artifact/1krt444a78B46kwb7jYipL (pages homeout UI Library, Button Set, Home Screen; version 1793993015-73d9).
 
 Project root: `C:\Users\joao_\Documents\homeout` (new).
 

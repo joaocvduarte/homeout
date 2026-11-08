@@ -1,0 +1,32 @@
+package app.homeout.di
+
+import app.homeout.domain.ContinueWithGoogle
+import app.homeout.domain.CountEventsThisWeek
+import app.homeout.domain.CreateAccount
+import app.homeout.domain.GetEvent
+import app.homeout.domain.GetSession
+import app.homeout.domain.GetTicketGroups
+import app.homeout.domain.GetUpcomingEvents
+import app.homeout.domain.LogIn
+import app.homeout.domain.PlaceOrder
+import kotlinx.datetime.TimeZone
+import org.koin.dsl.module
+import kotlin.time.Clock
+
+/**
+ * The domain layer: the use cases, plus the clock and time zone they read.
+ * Declared here so `domain` itself stays free of DI code.
+ */
+val domainModule = module {
+    single<Clock> { Clock.System }
+    single<TimeZone> { TimeZone.of("Europe/Lisbon") }
+    factory { GetUpcomingEvents(get(), get(), get()) }
+    factory { GetEvent(get(), get(), get()) }
+    factory { CountEventsThisWeek(get(), get(), get()) }
+    factory { PlaceOrder(get(), get()) }
+    factory { GetTicketGroups(get(), get()) }
+    factory { CreateAccount(get(), get()) }
+    factory { LogIn(get(), get()) }
+    factory { ContinueWithGoogle(get()) }
+    factory { GetSession(get()) }
+}
