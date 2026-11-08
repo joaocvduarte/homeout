@@ -1,6 +1,7 @@
 package app.homeout.designsystem
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
@@ -31,6 +32,16 @@ class HoContrastTest {
             check("onSecondaryContainer", c.onSecondaryContainer, "secondaryContainer", c.secondaryContainer, 4.5)
             check("onSecondaryContainer", c.onSecondaryContainer, "secondaryPressed", c.secondaryPressed, 4.5)
             check("onTertiary", c.onTertiary, "tertiary", c.tertiary, 4.5)
+            val field = c.field.compositeOver(c.background)
+            val alert = c.errorContainer.compositeOver(c.background)
+            check("error", c.error, "background", c.background, 4.5)
+            check("error", c.error, "field", field, 4.5)
+            check("error", c.error, "errorContainer", alert, 4.5)
+            check("onSurface", c.onSurface, "field", field, 4.5)
+            check("onSurfaceVariant (placeholder)", c.onSurfaceVariant, "field", field, 4.5)
+            check("onSurface", c.onSurface, "errorContainer", alert, 4.5)
+            check("onPrimaryText (Log in instead)", c.onPrimaryText, "errorContainer", alert, 4.5)
+            check("onSurface", c.onSurface, "surfaceHover", c.surfaceHover, 4.5)
             check("primary", c.primary, "background", c.background, 3.0)
             // The wordmark is 24sp at weight 800, large text under WCAG, so 3:1 applies.
             check("wordmark letters", HoColors.Dark.onSurface, "brand", c.brand, 3.0)

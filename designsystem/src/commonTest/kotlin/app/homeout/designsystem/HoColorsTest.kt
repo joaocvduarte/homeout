@@ -22,6 +22,22 @@ class HoColorsTest {
     ).mapValues { (_, color) -> color.hex() }
 
     @Test
+    fun formAndErrorTokensMatchTheDesign() {
+        assertEquals(
+            listOf("#ffb3b8", "#6f8a86", "#3c4e4b"),
+            HoColors.Dark.let { listOf(it.error.hex(), it.fieldBorder.hex(), it.surfaceHover.hex()) },
+        )
+        assertEquals(
+            listOf("#a12d3a", "#7d9894", "#c4d6d3"),
+            HoColors.Light.let { listOf(it.error.hex(), it.fieldBorder.hex(), it.surfaceHover.hex()) },
+        )
+        assertEquals(Color(0xFFFFB3B8).copy(alpha = 0.14f), HoColors.Dark.errorContainer)
+        assertEquals(Color(0xFFA12D3A).copy(alpha = 0.10f), HoColors.Light.errorContainer)
+        assertEquals(Color(0xFF334340).copy(alpha = 0.85f), HoColors.Dark.field)
+        assertEquals(Color(0xFFFFFFFF).copy(alpha = 0.55f), HoColors.Light.field)
+    }
+
+    @Test
     fun darkTokensMatchTheDesign() {
         assertEquals(
             mapOf(

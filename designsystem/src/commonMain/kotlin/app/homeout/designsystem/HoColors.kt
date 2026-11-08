@@ -31,6 +31,15 @@ data class HoColors(
     val glass: Color,
     /** Opacity of decorative imagery such as the flower border. */
     val decorationAlpha: Float,
+    /** Error text, borders and icons, on the background, a field or [errorContainer]. */
+    val error: Color,
+    /** The translucent fill behind an error alert. */
+    val errorContainer: Color,
+    /** The fill of a text field. */
+    val field: Color,
+    val fieldBorder: Color,
+    /** A surface-colored control under the pointer. */
+    val surfaceHover: Color,
 ) {
     companion object {
         val Dark = HoColors(
@@ -52,6 +61,11 @@ data class HoColors(
             neutralPressed = Color(0xFFE7ECEB).copy(alpha = 0.08f),
             glass = Color(0xFF283432).copy(alpha = 0.72f),
             decorationAlpha = 0.92f,
+            error = Color(0xFFFFB3B8),
+            errorContainer = Color(0xFFFFB3B8).copy(alpha = 0.14f),
+            field = Color(0xFF334340).copy(alpha = 0.85f),
+            fieldBorder = Color(0xFF6F8A86),
+            surfaceHover = Color(0xFF3C4E4B),
         )
 
         val Light = HoColors(
@@ -73,6 +87,11 @@ data class HoColors(
             neutralPressed = Color(0xFF0F1817).copy(alpha = 0.07f),
             glass = Color(0xFFE0EBE9).copy(alpha = 0.8f),
             decorationAlpha = 1f,
+            error = Color(0xFFA12D3A),
+            errorContainer = Color(0xFFA12D3A).copy(alpha = 0.10f),
+            field = Color(0xFFFFFFFF).copy(alpha = 0.55f),
+            fieldBorder = Color(0xFF7D9894),
+            surfaceHover = Color(0xFFC4D6D3),
         )
     }
 }
