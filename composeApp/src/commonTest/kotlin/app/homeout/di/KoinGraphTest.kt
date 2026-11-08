@@ -23,7 +23,6 @@ import app.homeout.domain.PosterColors
 import app.homeout.domain.Price
 import app.homeout.buy.BuyViewModel
 import app.homeout.event.EventViewModel
-import app.homeout.getapp.GetAppViewModel
 import app.homeout.home.HomeViewModel
 import app.homeout.qr.QrViewModel
 import app.homeout.root.RootViewModel
@@ -74,7 +73,6 @@ class KoinGraphTest {
             koin.get<TicketsViewModel>()
             koin.get<WebsiteViewModel>()
             koin.get<BuyViewModel> { parametersOf(SavedStateHandle(mapOf("id" to "fado-old-cistern"))) }
-            koin.get<GetAppViewModel> { parametersOf(SavedStateHandle(mapOf("id" to "fado-old-cistern"))) }
             koin.get<QrViewModel> { parametersOf(SavedStateHandle(mapOf("eventId" to "fado-old-cistern", "index" to 0))) }
         } finally {
             stopKoin()

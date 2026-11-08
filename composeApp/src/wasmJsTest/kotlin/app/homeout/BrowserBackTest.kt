@@ -101,44 +101,4 @@ class BrowserBackTest {
             eventually("browser back shows the Tickets tab") { has("YOUR TICKETS") && !has("YOUR TICKET") }
         }
     }
-
-    private fun addressWith(fragment: String) =
-        window.history.replaceState(null, "", window.location.pathname + window.location.search + "#" + fragment)
-
-    @Test
-    fun webBrowserBackLeavesGetTheAppForTheEvent() = runComposeUiTest {
-        withKoin(clock, TimeZone.of("Europe/Lisbon"), signedIn = false) {
-            cleanUrl()
-            setContent { App(edition = AppEdition.Web, onNavHostReady = { it.bindToBrowserNavigation() }) }
-            eventually("Home shows") { has("UPCOMING NEAR YOU") }
-            onNodeWithTag("event-petiscos-tasting").performClick()
-            eventually("the event page opens") { has("HOMEOUT PRESENTS") }
-            onNodeWithText("Buy tickets").performClick()
-            eventually("Get the app opens") { has("GET THE APP") }
-
-            window.history.back()
-            eventually("browser back shows the event page") { has("PETISCOS TASTING NIGHT") && !has("GET THE APP") }
-        }
-    }
-
-    @Test
-    fun webRestoredBuyAddressOpensGetTheApp() = runComposeUiTest {
-        withKoin(clock, TimeZone.of("Europe/Lisbon"), signedIn = false) {
-            cleanUrl()
-            addressWith("app.homeout.BuyDestination/fado-old-cistern")
-            setContent { App(edition = AppEdition.Web, onNavHostReady = { it.bindToBrowserNavigation() }) }
-            eventually("Get the app opens, not Buy") { has("GET THE APP") && !has("BUY TICKETS") }
-            assertTrue(has("Fado at the Old Cistern"))
-        }
-    }
-
-    @Test
-    fun webRestoredLogInAddressShowsHome() = runComposeUiTest {
-        withKoin(clock, TimeZone.of("Europe/Lisbon"), signedIn = false) {
-            cleanUrl()
-            addressWith("app.homeout.LoginDestination")
-            setContent { App(edition = AppEdition.Web, onNavHostReady = { it.bindToBrowserNavigation() }) }
-            eventually("Home shows, not Log in") { has("UPCOMING NEAR YOU") && !has("Continue with Google") }
-        }
-    }
 }

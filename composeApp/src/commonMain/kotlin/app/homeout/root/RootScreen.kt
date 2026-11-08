@@ -26,7 +26,7 @@ import kotlinx.datetime.TimeZone
 
 private val tabEasing = CubicBezierEasing(0.2f, 0.8f, 0.2f, 1f)
 
-/** The tab pane and the tab bar (omitted when [showTabs] is false). A new pane fades up (the design's 320 ms `ho-in`); the old one goes at once. */
+/** The tab pane and the tab bar. A new pane fades up (the design's 320 ms `ho-in`); the old one goes at once. */
 @Composable
 internal fun RootScreen(
     root: RootViewModel,
@@ -35,11 +35,8 @@ internal fun RootScreen(
     timeZone: TimeZone,
     onEventClick: (String) -> Unit,
     onTicketClick: (eventId: String, index: Int) -> Unit,
-    showTabs: Boolean = true,
 ) {
-    val selected by root.tab.collectAsState()
-    // Web has no tabs and no Tickets: it only ever shows Home.
-    val tab = if (showTabs) selected else Tab.HOME
+    val tab by root.tab.collectAsState()
     val ticketCount by root.ticketCount.collectAsState()
     val rise = with(LocalDensity.current) { 10.dp.roundToPx() }
     Column(Modifier.fillMaxSize()) {
@@ -70,6 +67,6 @@ internal fun RootScreen(
                 }
             }
         }
-        if (showTabs) TabBar(selected = tab, ticketCount = ticketCount, onSelect = root::select)
+        TabBar(selected = tab, ticketCount = ticketCount, onSelect = root::select)
     }
 }

@@ -31,12 +31,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import app.homeout.auth.LoginRoute
 import app.homeout.auth.LoginViewModel
 import app.homeout.auth.SignupRoute
 import app.homeout.designsystem.HoFlowerBorder
-import app.homeout.getapp.GetAppRoute
 import app.homeout.domain.GetSession
 import app.homeout.designsystem.HoTheme
 import app.homeout.event.EventRoute
@@ -68,24 +66,21 @@ private val popExit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> Exi
 /**
  * The app shell: background, flower border and header stay fixed while the tabs and the
  * screens pushed over them swap beneath. Dependencies come from Koin, started by each platform entry.
- * [edition] picks the phone app or the website. [onNavHostReady] lets Web bind the browser's back button.
+ * [onNavHostReady] hands the controller out once the graph is set, so a test can bind the browser's back button.
  */
 @Composable
 fun App(
     navController: NavHostController = rememberNavController(),
-    edition: AppEdition = AppEdition.App,
     onNavHostReady: suspend (NavHostController) -> Unit = {},
 ) {
-    val web = edition == AppEdition.Web
     val timeZone = koinInject<TimeZone>()
     val back: () -> Unit = { if (navController.previousBackStackEntry != null) navController.popBackStack() }
 
     // Someone already signed in lands on Home; everyone else starts on Log in. Read once, before the first frame.
     val getSession = koinInject<GetSession>()
-    // Web has no accounts: it always starts on Home.
-    val start: Any = remember { if (web || getSession() != null) RootDestination else LoginDestination }
+    val start: Any = remember { if (getSession() != null) RootDestination else LoginDestination }
     val current by navController.currentBackStackEntryAsState()
-    val onAuth = !web && current?.destination?.let { it.hasRoute<LoginDestination>() || it.hasRoute<SignupDestination>() }
+    val onAuth = current?.destination?.let { it.hasRoute<LoginDestination>() || it.hasRoute<SignupDestination>() }
         ?: (start == LoginDestination)
     // Signing in leaves neither Log in nor Create account behind, so back from Home leaves the app.
     val signedIn: () -> Unit = {
@@ -99,7 +94,7 @@ fun App(
         Box(Modifier.fillMaxSize().background(HoTheme.colors.background)) {
             HoFlowerBorder()
             Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.statusBars.union(DesignStatusBar))) {
-                AppHeader(Modifier.padding(start = 20.dp, end = 20.dp, top = 6.dp), visible = !onAuth, showAccount = !web)
+                AppHeader(Modifier.padding(start = 20.dp, end = 20.dp, top = 6.dp), visible = !onAuth)
                 NavHost(
                     navController = navController,
                     startDestination = start,
@@ -109,54 +104,42 @@ fun App(
                     popEnterTransition = popEnter,
                     popExitTransition = popExit,
                 ) {
-                    if (web) {
-                        // A restored URL fragment can name any screen, so Web registers them all and sends each to its closest one.
-                        composable<LoginDestination> { LaunchedEffect(Unit) { navController.popBackStack() } }
-                        composable<SignupDestination> { LaunchedEffect(Unit) { navController.popBackStack() } }
-                        composable<QrDestination> { LaunchedEffect(Unit) { navController.popBackStack() } }
-                        composable<BuyDestination> {
-                            val id = it.toRoute<BuyDestination>().id
-                            LaunchedEffect(id) { navController.navigate(GetAppDestination(id)) { popUpTo<BuyDestination> { inclusive = true } } }
-                        }
-                        composable<GetAppDestination> { GetAppRoute(koinViewModel(), timeZone, onBack = back) }
-                    } else {
-                        composable<LoginDestination> {
-                            LoginRoute(
-                                viewModel = koinViewModel(),
-                                onSignedIn = signedIn,
-                                onCreateAccount = { navController.navigate(SignupDestination) },
-                            )
-                        }
-                        composable<SignupDestination> {
-                            // Log in instead fills the email on Log in's own ViewModel, then pops back to it.
-                            val loginEntry = remember(it) { navController.getBackStackEntry<LoginDestination>() }
-                            val login = koinViewModel<LoginViewModel>(viewModelStoreOwner = loginEntry)
-                            SignupRoute(
-                                viewModel = koinViewModel(),
-                                onBack = back,
-                                onSignedIn = signedIn,
-                                onLoginInstead = { email ->
-                                    login.prefill(email)
-                                    navController.popBackStack()
-                                },
-                            )
-                        }
-                        composable<BuyDestination> {
-                            val rootEntry = remember(it) { navController.getBackStackEntry<RootDestination>() }
-                            val root = koinViewModel<RootViewModel>(viewModelStoreOwner = rootEntry)
-                            BuyRoute(
-                                viewModel = koinViewModel(),
-                                timeZone = timeZone,
-                                onBack = back,
-                                onPaid = { message ->
-                                    root.showTickets(message)
-                                    navController.popBackStack(RootDestination, inclusive = false)
-                                },
-                            )
-                        }
-                        composable<QrDestination> {
-                            QrRoute(koinViewModel(), timeZone, onBack = back)
-                        }
+                    composable<LoginDestination> {
+                        LoginRoute(
+                            viewModel = koinViewModel(),
+                            onSignedIn = signedIn,
+                            onCreateAccount = { navController.navigate(SignupDestination) },
+                        )
+                    }
+                    composable<SignupDestination> {
+                        // Log in instead fills the email on Log in's own ViewModel, then pops back to it.
+                        val loginEntry = remember(it) { navController.getBackStackEntry<LoginDestination>() }
+                        val login = koinViewModel<LoginViewModel>(viewModelStoreOwner = loginEntry)
+                        SignupRoute(
+                            viewModel = koinViewModel(),
+                            onBack = back,
+                            onSignedIn = signedIn,
+                            onLoginInstead = { email ->
+                                login.prefill(email)
+                                navController.popBackStack()
+                            },
+                        )
+                    }
+                    composable<BuyDestination> {
+                        val rootEntry = remember(it) { navController.getBackStackEntry<RootDestination>() }
+                        val root = koinViewModel<RootViewModel>(viewModelStoreOwner = rootEntry)
+                        BuyRoute(
+                            viewModel = koinViewModel(),
+                            timeZone = timeZone,
+                            onBack = back,
+                            onPaid = { message ->
+                                root.showTickets(message)
+                                navController.popBackStack(RootDestination, inclusive = false)
+                            },
+                        )
+                    }
+                    composable<QrDestination> {
+                        QrRoute(koinViewModel(), timeZone, onBack = back)
                     }
                     composable<RootDestination> {
                         RootScreen(
@@ -166,13 +149,10 @@ fun App(
                             timeZone = timeZone,
                             onEventClick = { navController.navigate(EventDestination(it)) },
                             onTicketClick = { eventId, index -> navController.navigate(QrDestination(eventId, index)) },
-                            showTabs = !web,
                         )
                     }
                     composable<EventDestination> {
-                        EventRoute(koinViewModel(), timeZone, onBack = back, onBuy = {
-                            if (web) navController.navigate(GetAppDestination(it)) else navController.navigate(BuyDestination(it))
-                        })
+                        EventRoute(koinViewModel(), timeZone, onBack = back, onBuy = { navController.navigate(BuyDestination(it)) })
                     }
                 }
             }

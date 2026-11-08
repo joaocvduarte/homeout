@@ -29,12 +29,12 @@ import app.homeout.designsystem.HoTypeRole
 import org.jetbrains.compose.resources.painterResource
 
 /**
- * The wordmark, notifications bell and avatar; Web has no accounts, so [showAccount] is false there and only the wordmark shows.
+ * The wordmark, notifications bell and avatar.
  * It stays at the top on every screen except Log in and Create account,
  * where it fades out (and out of accessibility) but keeps its space; it fades back in over 360 ms on Home.
  */
 @Composable
-internal fun AppHeader(modifier: Modifier = Modifier, visible: Boolean = true, showAccount: Boolean = true) {
+internal fun AppHeader(modifier: Modifier = Modifier, visible: Boolean = true) {
     val colors = HoTheme.colors
     val alpha by animateFloatAsState(
         targetValue = if (visible) 1f else 0f,
@@ -54,7 +54,6 @@ internal fun AppHeader(modifier: Modifier = Modifier, visible: Boolean = true, s
             )
         }
         Box(Modifier.weight(1f))
-        if (!showAccount) return@Row
         Box(Modifier.size(44.dp), contentAlignment = Alignment.Center) {
             Image(
                 painter = painterResource(HoIcons.Bell),
