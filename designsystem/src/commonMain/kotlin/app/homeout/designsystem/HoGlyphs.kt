@@ -47,6 +47,16 @@ object HoGlyphs {
         glyph("check-circle", BOLD, Color.Black, null, "M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0z", "M8 12.5l2.7 2.7L16 9.8")
     }
 
+    /** The mark on the Google sign-in buttons: a head and shoulders in a circle. */
+    val Account: ImageVector by lazy {
+        glyph("account", REGULAR, Color.Black, null, "M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0z", "M9 10a3 3 0 1 0 6 0a3 3 0 1 0 -6 0z", "M6.5 18.2a6.5 6.5 0 0 1 11 0")
+    }
+
+    /** The mark on an error alert: an exclamation in a circle. */
+    val AlertCircle: ImageVector by lazy {
+        glyph("alert-circle", BOLD, Color.Black, null, "M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0z", "M12 7.5v5.5", "M12 16.5h.01")
+    }
+
     /** The small QR mark on each ticket row. */
     val QrMini: ImageVector by lazy {
         glyph(

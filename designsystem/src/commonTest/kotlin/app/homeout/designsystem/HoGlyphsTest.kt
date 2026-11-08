@@ -25,6 +25,8 @@ class HoGlyphsTest {
         "Phone" to HoGlyphs.Phone,
         "Card" to HoGlyphs.Card,
         "Wallet" to HoGlyphs.Wallet,
+        "Account" to HoGlyphs.Account,
+        "AlertCircle" to HoGlyphs.AlertCircle,
     )
 
     @Test
