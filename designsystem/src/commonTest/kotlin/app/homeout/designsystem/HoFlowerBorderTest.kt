@@ -58,4 +58,24 @@ class HoFlowerBorderTest {
         assertFalse(SemanticsProperties.ContentDescription in config, "the poster flower must not be announced")
         assertFalse(SemanticsActions.OnClick in config, "the poster flower must not take taps")
     }
+
+    @Test
+    fun everyFlowerPartIsDecorativeOnly() = runComposeUiTest {
+        setContent {
+            HoTheme(darkTheme = true) {
+                Box {
+                    HoFlower(HoFlowerPart.Left, Modifier.width(100.dp))
+                    HoFlower(HoFlowerPart.Mid, Modifier.width(100.dp))
+                    HoFlower(HoFlowerPart.Right, Modifier.width(100.dp))
+                }
+            }
+        }
+        listOf("flower-left", "flower-mid", "flower-right").forEach { tag ->
+            val node = onNodeWithTag(tag, useUnmergedTree = true)
+            node.assertWidthIsEqualTo(100.dp)
+            val config = node.fetchSemanticsNode().config
+            assertFalse(SemanticsProperties.ContentDescription in config, "$tag must not be announced")
+            assertFalse(SemanticsActions.OnClick in config, "$tag must not take taps")
+        }
+    }
 }

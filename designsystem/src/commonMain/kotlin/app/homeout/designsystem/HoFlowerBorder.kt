@@ -56,3 +56,25 @@ fun HoPosterFlower(modifier: Modifier = Modifier) {
         contentScale = ContentScale.FillWidth,
     )
 }
+
+/** Which of the logo's three top flowers [HoFlower] shows. */
+enum class HoFlowerPart { Left, Mid, Right }
+
+/**
+ * One of the logo's top flowers on its own, at full strength (the website's hero and call to action).
+ * Purely decorative: no semantics, no input. The caller sizes and places it.
+ */
+@Composable
+fun HoFlower(part: HoFlowerPart, modifier: Modifier = Modifier) {
+    val (resource, tag) = when (part) {
+        HoFlowerPart.Left -> Res.drawable.flowers_top_left to "flower-left"
+        HoFlowerPart.Mid -> Res.drawable.flowers_top_mid to "flower-mid"
+        HoFlowerPart.Right -> Res.drawable.flowers_top_right to "flower-right"
+    }
+    Image(
+        painter = painterResource(resource),
+        contentDescription = null,
+        modifier = modifier.testTag(tag),
+        contentScale = ContentScale.FillWidth,
+    )
+}

@@ -1,5 +1,5 @@
 ---
-status: pending
+status: done
 ---
 
 # Instruction: Website content: next events, copy, colors, flower and arrow assets

@@ -9,6 +9,7 @@ import app.homeout.home.HomeViewModel
 import app.homeout.qr.QrViewModel
 import app.homeout.root.RootViewModel
 import app.homeout.tickets.TicketsViewModel
+import app.homeout.website.WebsiteViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -23,4 +24,5 @@ val presentationModule = module {
     viewModelOf(::BuyViewModel)
     viewModelOf(::QrViewModel)
     viewModelOf(::GetAppViewModel)
+    viewModelOf(::WebsiteViewModel)
 }

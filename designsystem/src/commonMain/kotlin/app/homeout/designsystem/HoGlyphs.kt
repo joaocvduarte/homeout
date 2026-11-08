@@ -66,6 +66,9 @@ object HoGlyphs {
         )
     }
 
+    /** The website's scroll hint. */
+    val ArrowDown: ImageVector by lazy { glyph("arrow-down", REGULAR, Color.Black, null, "M12 5v14", "M6 13l6 6 6-6") }
+
     val Phone: ImageVector by lazy {
         glyph(
             "phone", REGULAR, Color.Black, null,

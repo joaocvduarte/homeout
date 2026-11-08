@@ -23,6 +23,7 @@ class HoGlyphsTest {
         "CheckCircle" to HoGlyphs.CheckCircle,
         "QrMini" to HoGlyphs.QrMini,
         "Phone" to HoGlyphs.Phone,
+        "ArrowDown" to HoGlyphs.ArrowDown,
         "Card" to HoGlyphs.Card,
         "Wallet" to HoGlyphs.Wallet,
         "Account" to HoGlyphs.Account,

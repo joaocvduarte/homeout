@@ -28,6 +28,7 @@ import app.homeout.home.HomeViewModel
 import app.homeout.qr.QrViewModel
 import app.homeout.root.RootViewModel
 import app.homeout.tickets.TicketsViewModel
+import app.homeout.website.WebsiteViewModel
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.TimeZone
 import org.koin.core.context.stopKoin
@@ -71,6 +72,7 @@ class KoinGraphTest {
             koin.get<EventViewModel> { parametersOf(SavedStateHandle(mapOf("id" to "fado-old-cistern"))) }
             koin.get<RootViewModel> { parametersOf(SavedStateHandle()) }
             koin.get<TicketsViewModel>()
+            koin.get<WebsiteViewModel>()
             koin.get<BuyViewModel> { parametersOf(SavedStateHandle(mapOf("id" to "fado-old-cistern"))) }
             koin.get<GetAppViewModel> { parametersOf(SavedStateHandle(mapOf("id" to "fado-old-cistern"))) }
             koin.get<QrViewModel> { parametersOf(SavedStateHandle(mapOf("eventId" to "fado-old-cistern", "index" to 0))) }
