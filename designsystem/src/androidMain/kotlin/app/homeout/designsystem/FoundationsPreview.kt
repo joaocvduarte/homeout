@@ -16,7 +16,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -37,6 +42,18 @@ internal fun FoundationsCatalog() {
         Swatches()
         TypeScale()
         ButtonSet()
+        Fields()
+    }
+}
+
+@Composable
+internal fun Fields() {
+    var terms by remember { mutableStateOf(true) }
+    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        HoTextField("Email", remember { TextFieldState() }, placeholder = "you@example.com")
+        HoTextField("Email", remember { TextFieldState("maya@example") }, error = "Enter an email like you@example.com.")
+        HoTextField("Password", remember { TextFieldState("lisbon") }, password = true, supporting = "At least 8 characters.", invalid = true)
+        HoCheckbox(terms, { terms = it }, "I agree to the homeout Terms of Service and Privacy Policy.")
     }
 }
 
