@@ -5,6 +5,7 @@ import androidx.compose.ui.test.AndroidComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -14,6 +15,7 @@ import androidx.compose.ui.test.v2.runAndroidComposeUiTest
 import kotlinx.datetime.TimeZone
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlin.time.Clock
 import kotlin.time.Instant
 
@@ -72,6 +74,50 @@ class SystemBackTest {
             waitForIdle()
             onNodeWithText("YOUR TICKETS").assertExists()
             assertEquals(0, onAllNodes(hasText("YOUR TICKET")).fetchSemanticsNodes().size)
+        }
+    }
+
+    @Test
+    fun systemBackFromCreateAccountReturnsToLogIn() = runAndroidComposeUiTest<ComponentActivity> {
+        withKoin(clock, TimeZone.of("Europe/Lisbon"), signedIn = false) {
+            setContent { App() }
+            onNodeWithTag("login-create").performClick()
+            waitForIdle()
+            onNodeWithTag("signup-page").assertExists()
+
+            runOnUiThread { activity!!.onBackPressedDispatcher.onBackPressed() }
+            waitForIdle()
+
+            onNodeWithTag("login-page").assertExists()
+            assertEquals(0, onAllNodes(hasTestTag("signup-page")).fetchSemanticsNodes().size)
+        }
+    }
+
+    @Test
+    fun systemBackFromLogInLeavesTheApp() = runAndroidComposeUiTest<ComponentActivity> {
+        withKoin(clock, TimeZone.of("Europe/Lisbon"), signedIn = false) {
+            setContent { App() }
+            onNodeWithTag("login-page").assertExists()
+
+            runOnUiThread { activity!!.onBackPressedDispatcher.onBackPressed() }
+            waitForIdle()
+
+            assertTrue(activity == null || activity!!.isFinishing, "system back on Log in finishes the activity")
+        }
+    }
+
+    @Test
+    fun systemBackFromHomeAfterSigningInLeavesTheApp() = runAndroidComposeUiTest<ComponentActivity> {
+        withKoin(clock, TimeZone.of("Europe/Lisbon"), signedIn = false) {
+            setContent { App() }
+            onNodeWithTag("login-google").performClick()
+            waitForIdle()
+            onNodeWithText("UPCOMING NEAR YOU").assertExists()
+
+            runOnUiThread { activity!!.onBackPressedDispatcher.onBackPressed() }
+            waitForIdle()
+
+            assertTrue(activity == null || activity!!.isFinishing, "Log in is gone from the back stack, so back leaves the app")
         }
     }
 }

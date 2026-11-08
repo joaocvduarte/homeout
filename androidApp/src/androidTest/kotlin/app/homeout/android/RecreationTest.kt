@@ -12,7 +12,9 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Rule
+import org.junit.rules.ExternalResource
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -23,8 +25,22 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class RecreationTest {
 
-    @get:Rule
+    /** Runs before the activity starts: every test begins signed out, with no accounts on the phone. */
+    @get:Rule(order = 0)
+    val signedOut = object : ExternalResource() {
+        override fun before() = clearAccounts()
+    }
+
+    @get:Rule(order = 1)
     val rule = createAndroidComposeRule<MainActivity>()
+
+    private fun signInWithGoogle() {
+        rule.onNodeWithTag("login-google").performClick()
+        rule.waitForIdle()
+    }
+
+    @Before
+    fun startOnHome() = signInWithGoogle()
 
     private fun filterFoodAndSearchPetiscos() {
         rule.onNodeWithText("Food").performClick()
