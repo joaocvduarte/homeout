@@ -1,6 +1,6 @@
 ---
 objective: "On Android and iOS people create an account or log in, checked against accounts kept on the phone, before they reach Home and stay signed in across restarts, while Web opens straight on Home with no account, no tab bar and a Get the app screen for buying, all matching design 1794131199-48a3 in both themes, with every behavior tested."
-status: in-progress
+status: implemented
 ---
 
 # Plan: Log in, Create account and the Web edition
