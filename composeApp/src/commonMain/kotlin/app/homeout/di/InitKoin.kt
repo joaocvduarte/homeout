@@ -6,7 +6,10 @@ import org.koin.core.module.Module
 
 val appModules: List<Module> = listOf(dataModule, domainModule, presentationModule)
 
-/** Starts Koin once per process. [overrides] load last, so they replace any app binding. */
-fun initKoin(overrides: List<Module> = emptyList()) {
-    startKoin { modules(appModules + overrides) }
+/**
+ * Starts Koin once per process. [platform] supplies what only the platform has, the `KeyValueStore`
+ * behind the accounts. [overrides] load last, so they replace any app binding.
+ */
+fun initKoin(platform: Module, overrides: List<Module> = emptyList()) {
+    startKoin { modules(appModules + platform + overrides) }
 }

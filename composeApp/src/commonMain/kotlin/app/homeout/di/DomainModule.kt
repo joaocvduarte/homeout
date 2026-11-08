@@ -1,9 +1,13 @@
 package app.homeout.di
 
+import app.homeout.domain.ContinueWithGoogle
 import app.homeout.domain.CountEventsThisWeek
+import app.homeout.domain.CreateAccount
 import app.homeout.domain.GetEvent
+import app.homeout.domain.GetSession
 import app.homeout.domain.GetTicketGroups
 import app.homeout.domain.GetUpcomingEvents
+import app.homeout.domain.LogIn
 import app.homeout.domain.PlaceOrder
 import kotlinx.datetime.TimeZone
 import org.koin.dsl.module
@@ -21,4 +25,8 @@ val domainModule = module {
     factory { CountEventsThisWeek(get(), get(), get()) }
     factory { PlaceOrder(get(), get()) }
     factory { GetTicketGroups(get(), get()) }
+    factory { CreateAccount(get(), get()) }
+    factory { LogIn(get(), get()) }
+    factory { ContinueWithGoogle(get()) }
+    factory { GetSession(get()) }
 }

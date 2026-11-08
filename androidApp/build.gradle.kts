@@ -19,6 +19,10 @@ android {
 
 dependencies {
     implementation(projects.composeApp)
+    // composeApp keeps these as implementation, so the app module names the ones HomeoutApplication uses.
+    implementation(projects.data)
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.core)
     implementation(libs.androidx.activity.compose)
 
     androidTestImplementation(libs.androidx.test.runner)

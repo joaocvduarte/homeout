@@ -1,7 +1,15 @@
 package app.homeout.di
 
 import androidx.lifecycle.SavedStateHandle
+import app.homeout.data.InMemoryKeyValueStore
+import app.homeout.data.KeyValueStore
+import app.homeout.domain.AccountRepository
 import app.homeout.domain.Category
+import app.homeout.domain.ContinueWithGoogle
+import app.homeout.domain.CreateAccount
+import app.homeout.domain.GetSession
+import app.homeout.domain.LogIn
+import app.homeout.domain.PasswordHasher
 import app.homeout.domain.CountEventsThisWeek
 import app.homeout.domain.Event
 import app.homeout.domain.EventIcon
@@ -40,7 +48,7 @@ class KoinGraphTest {
 
     @Test
     fun appGraphResolvesEveryBindingAndViewModelWithLisbonAndTheSystemClock() = runTest {
-        initKoin()
+        initKoin(module { single<KeyValueStore> { InMemoryKeyValueStore() } })
         try {
             val koin = KoinPlatform.getKoin()
             koin.get<EventRepository>()
@@ -49,6 +57,12 @@ class KoinGraphTest {
             koin.get<CountEventsThisWeek>()
             koin.get<PlaceOrder>()
             koin.get<GetTicketGroups>()
+            koin.get<CreateAccount>()
+            koin.get<LogIn>()
+            koin.get<ContinueWithGoogle>()
+            koin.get<GetSession>()
+            assertSame(koin.get<AccountRepository>(), koin.get<AccountRepository>())
+            assertSame(koin.get<PasswordHasher>(), koin.get<PasswordHasher>())
             assertSame(koin.get<OrderRepository>(), koin.get<OrderRepository>())
             assertEquals(TimeZone.of("Europe/Lisbon"), koin.get<TimeZone>())
             assertSame(Clock.System, koin.get<Clock>())
