@@ -10,7 +10,7 @@ status: pending
 
 ```txt
 .
-├── gradle/libs.versions.toml ✏️ cryptography-core, cryptography-provider-optimal 0.6.0; android-minSdk 24 → 26
+├── gradle/libs.versions.toml ✏️ android-minSdk 24 → 26
 ├── domain/src/commonMain/kotlin/app/homeout/domain/
 │   ├── Account.kt ✅ name, email
 │   ├── Credentials.kt ✅ isValidEmail, isValidPassword (8+), normalizeEmail
@@ -26,18 +26,24 @@ status: pending
 │   ├── CreateAccountTest.kt ✅
 │   ├── LogInTest.kt ✅
 │   └── ContinueWithGoogleTest.kt ✅
-├── data/build.gradle.kts ✏️ cryptography dependencies
 ├── data/src/commonMain/kotlin/app/homeout/data/
 │   ├── KeyValueStore.kt ✅ getString, putString
 │   ├── InMemoryKeyValueStore.kt ✅ Web and tests
 │   ├── StoredAccountRepository.kt ✅ accounts and session over a KeyValueStore
-│   ├── Pbkdf2PasswordHasher.kt ✅ iterations parameter, default 600,000
+│   ├── Pbkdf2PasswordHasher.kt ✅ iterations parameter, default 600,000; shared format and compare
+│   ├── Pbkdf2.kt ✅ expect pbkdf2Sha256, secureRandomBytes
 │   └── DataModule.kt ✏️ AccountRepository, PasswordHasher
-├── data/src/androidMain/kotlin/app/homeout/data/SharedPreferencesStore.kt ✅
-├── data/src/iosMain/kotlin/app/homeout/data/UserDefaultsStore.kt ✅
+├── data/src/androidMain/kotlin/app/homeout/data/
+│   ├── SharedPreferencesStore.kt ✅
+│   └── Pbkdf2.android.kt ✅ javax.crypto, SecureRandom
+├── data/src/iosMain/kotlin/app/homeout/data/
+│   ├── UserDefaultsStore.kt ✅
+│   └── Pbkdf2.ios.kt ✅ CCKeyDerivationPBKDF, SecRandomCopyBytes
+├── data/src/wasmJsMain/kotlin/app/homeout/data/Pbkdf2.wasmJs.kt ✅ throws: Web has no accounts
 ├── data/src/commonTest/kotlin/app/homeout/data/
 │   ├── StoredAccountRepositoryTest.kt ✅
-│   └── Pbkdf2PasswordHasherTest.kt ✅
+│   └── (Pbkdf2PasswordHasherTest.kt moves to androidHostTest)
+├── data/src/androidHostTest/kotlin/app/homeout/data/Pbkdf2PasswordHasherTest.kt ✅
 ├── composeApp/src/commonMain/kotlin/app/homeout/di/
 │   ├── InitKoin.kt ✏️ initKoin(platform, overrides)
 │   └── DomainModule.kt ✏️ the four use cases
@@ -69,14 +75,12 @@ status: pending
 
 ## Tasks to do
 
-### `1)` Dependencies
+### `1)` Platform minimum
 
-> Add PBKDF2 hashing that runs on Android, iOS and Wasm.
+> Make the Android version support the hash.
 
-1. Add `cryptography = "0.6.0"` and the `cryptography-core` and `cryptography-provider-optimal` libraries to the catalog.
-2. Add both to `data` `commonMain`.
-3. Raise `android-minSdk` from 24 to 26. Android's `PBKDF2WithHmacSHA256` exists only from API 26, so on Android 7 every sign-in would crash.
-4. Run `./gradlew build` before writing code on them. If 0.6.0 fails against Kotlin 2.4.21, stop and report.
+1. Raise `android-minSdk` from 24 to 26. Android's `PBKDF2WithHmacSHA256` exists only from API 26, so on Android 7 every sign-in would crash.
+2. Run `./gradlew build`. No library is added: cryptography-kotlin breaks the Wasm tests (see the plan).
 
 ### `2)` Domain accounts
 
@@ -102,12 +106,13 @@ status: pending
    - keys `account.<email>.name`, `account.<email>.password`, `session.email`
    - reads through to the store on every call, with no in-memory cache, so clearing the store in a test is seen by the Koin singleton
 4. `Pbkdf2PasswordHasher(iterations = 600_000)`:
-   - PBKDF2-HMAC-SHA256, a 16-byte salt from the library's secure random, a 32-byte key
+   - PBKDF2-HMAC-SHA256, a 16-byte salt, a 32-byte key
    - stored as `<iterations>:<salt b64>:<hash b64>`; `verify` uses the stored iteration count
    - runs on `Dispatchers.Default`, so 600,000 rounds never block the main thread (ANR)
    - `verify` compares in constant time
+   - gets `pbkdf2Sha256(password, salt, iterations, length)` and `secureRandomBytes(n)` from `expect` functions: `javax.crypto` and `SecureRandom` on Android, CommonCrypto (`CCKeyDerivationPBKDF`) and `SecRandomCopyBytes` on iOS, and a throwing actual on Wasm
 5. Bind `AccountRepository` and `PasswordHasher` as singletons in `dataModule`. `KeyValueStore` comes from the platform module.
-6. Data tests over `InMemoryKeyValueStore`, with a low iteration count for the hasher.
+6. Common data tests over `InMemoryKeyValueStore` and a fake hasher. The real hasher's test runs on Android host tests, where `javax.crypto` exists.
 
 ### `4)` Wiring
 
@@ -130,7 +135,7 @@ status: pending
 
 | Task | Acceptance criteria              |
 | ---- | -------------------------------- |
-| 1 | `./gradlew build` passes with cryptography-kotlin 0.6.0 on every target, with minSdk 26 |
+| 1 | `./gradlew build` passes on every target, with minSdk 26 and no new library |
 | 2 | Creating an account signs in. A duplicate email in any case is `EmailTaken`. A wrong password or unknown email is `Mismatch`. Invalid input never reaches the store |
 | 3 | Two hashes of one password differ and both verify. No stored value contains the password. The repository reads back what it wrote |
 | 4 | `androidApp` compiles against `data` and Koin. The Koin graph resolves on every platform. Every existing UI test still opens on Home. A SharedPreferences value survives a new store instance |
