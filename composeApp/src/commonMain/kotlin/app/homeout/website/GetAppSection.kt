@@ -17,11 +17,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import app.homeout.designsystem.HoFlower
 import app.homeout.designsystem.HoFlowerPart
-import app.homeout.designsystem.HoGlyphs
+import app.homeout.designsystem.HoStore
 import app.homeout.designsystem.HoTypeRole
 
 /**
@@ -68,8 +69,8 @@ internal fun GetAppSection(layout: WebsiteLayout, goTo: (Section) -> Unit, modif
                     horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    PillButton("Get it for iPhone", { goTo(Section.App) }, WebsiteColors.pill, WebsiteColors.pillInk, icon = HoGlyphs.Phone)
-                    PillButton("Get it for Android", { goTo(Section.App) }, WebsiteColors.pill, WebsiteColors.pillInk, icon = HoGlyphs.Phone)
+                    StoreBadgeButton(HoStore.AppStore, { goTo(Section.App) }, WebsiteColors.ink, Modifier.testTag("store-app-store"))
+                    StoreBadgeButton(HoStore.GooglePlay, { goTo(Section.App) }, WebsiteColors.ink, Modifier.testTag("store-google-play"))
                 }
             }
         }

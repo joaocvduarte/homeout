@@ -20,8 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import app.homeout.designsystem.HoPosterFlower
 import app.homeout.designsystem.HoTypeRole
@@ -36,9 +37,10 @@ private val fanWidth = 340.dp
 private val fanHeight = 420.dp
 
 /**
- * The teal panel with the app's posters fanned out. It is 2.4 viewports tall and its content stays
- * pinned to the viewport while the page scrolls through it. This is its final frame: the panel
- * spans the page and the posters are fanned.
+ * The teal panel with the app's posters fanned out. It is 1.7 viewports tall and its content stays
+ * pinned to the viewport while the page scrolls through it. One swipe plays it all: once the section
+ * is on its way in, the panel opens, the posters rise and fan out and the words arrive. It plays back
+ * when the page scrolls up past its start.
  */
 @Composable
 internal fun ShowcaseSection(
@@ -51,14 +53,12 @@ internal fun ShowcaseSection(
     val motion = LocalSiteMotion.current
     val reduce = motion?.reduce ?: true
     val scroll = motion?.scroll
-    val sectionHeight = layout.height * 2.4f
+    val sectionHeight = layout.height * 1.7f
     val slack = sectionHeight - layout.height
-    val progress: GraphicsLayerScope.() -> Float = {
-        showcaseProgress((scroll?.value ?: 0).toFloat(), anchors[Section.Showcase].toFloat(), layout.height.toPx())
-    }
-    val frame: GraphicsLayerScope.() -> ShowcaseFrame = { showcaseFrame(progress(), reduce) }
+    val on = rememberShowcaseOn(motion) { anchors[Section.Showcase] }
+    val frame = rememberShowcaseFrame(on, reduce)
     val posters = fanOrder.mapNotNull { events.getOrNull(it)?.event }
-    Box(modifier.fillMaxWidth().height(sectionHeight)) {
+    Box(modifier.fillMaxWidth().height(sectionHeight).semantics { stateDescription = if (on) "on" else "off" }) {
         Box(
             Modifier
                 .fillMaxWidth()
@@ -72,10 +72,9 @@ internal fun ShowcaseSection(
         ) {
             Box(
                 Modifier.matchParentSize().graphicsLayer {
-                    val f = frame()
-                    scaleX = f.panelScale
-                    scaleY = f.panelScale
-                    shape = RoundedCornerShape(f.panelRadius.dp)
+                    scaleX = frame.panelScale
+                    scaleY = frame.panelScale
+                    shape = RoundedCornerShape(frame.panelRadius.dp)
                     clip = true
                 }.background(WebsiteColors.panel),
             )
@@ -87,7 +86,7 @@ internal fun ShowcaseSection(
 }
 
 @Composable
-private fun ShowcaseContent(layout: WebsiteLayout, posters: List<Event>, timeZone: TimeZone, frame: GraphicsLayerScope.() -> ShowcaseFrame) {
+private fun ShowcaseContent(layout: WebsiteLayout, posters: List<Event>, timeZone: TimeZone, frame: ShowcaseFrame) {
     val gap = layout.clamp(24f, 6f, 96f)
     BoxWithConstraints(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         val available = maxWidth
@@ -97,9 +96,8 @@ private fun ShowcaseContent(layout: WebsiteLayout, posters: List<Event>, timeZon
             ShowcaseCopy(
                 layout,
                 modifier.graphicsLayer {
-                    val f = frame()
-                    alpha = f.copyAlpha
-                    translationY = f.copyOffset * density
+                    alpha = frame.copyAlpha
+                    translationY = frame.copyOffset * density
                 },
             )
         }
@@ -136,10 +134,10 @@ private fun ShowcaseCopy(layout: WebsiteLayout, modifier: Modifier) {
 
 /** Three posters at the design's final fan: ±92 apart, ±9° tilted, the sides 22 lower. */
 @Composable
-private fun PosterFan(layout: WebsiteLayout, posters: List<Event>, timeZone: TimeZone, frame: GraphicsLayerScope.() -> ShowcaseFrame) {
+private fun PosterFan(layout: WebsiteLayout, posters: List<Event>, timeZone: TimeZone, frame: ShowcaseFrame) {
     val scale = layout.fanScale
     Box(
-        Modifier.size(fanWidth * scale, fanHeight * scale).graphicsLayer { translationY = frame().posterRise * density },
+        Modifier.size(fanWidth * scale, fanHeight * scale).graphicsLayer { translationY = frame.posterRise * density },
         contentAlignment = Alignment.Center,
     ) {
         Box(Modifier.requiredSize(fanWidth, fanHeight).graphicsLayer { scaleX = scale; scaleY = scale }) {
@@ -150,7 +148,7 @@ private fun PosterFan(layout: WebsiteLayout, posters: List<Event>, timeZone: Tim
                     Modifier
                         .align(Alignment.Center)
                         .graphicsLayer {
-                            val card = frame().fan(k)
+                            val card = frame.fan(k)
                             translationX = card.dx * density
                             translationY = card.dy * density
                             rotationZ = card.rotation

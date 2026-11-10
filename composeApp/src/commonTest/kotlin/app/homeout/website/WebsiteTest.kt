@@ -25,6 +25,7 @@ import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -81,8 +82,10 @@ class WebsiteTest {
                 "01", "Find your night", "02", "Buy in seconds", "03", "Walk straight in",
                 "HEAD OUT\nTONIGHT",
                 "Free on iPhone and Android. Log in with your Google account or create one in a minute.",
-                "Get it for iPhone", "Get it for Android", "Made in Lisbon · © 2026",
+                "Made in Lisbon · © 2026",
             ).forEach { assertTrue(exists(it), "missing copy: $it") }
+            onNodeWithContentDescription("Download on the App Store").assertExists()
+            onNodeWithContentDescription("Get it on Google Play").assertExists()
         }
     }
 
@@ -128,7 +131,8 @@ class WebsiteTest {
                 { onNodeWithTag("website-tickets-fado-old-cistern") },
                 { onNodeWithTag("website-tickets-petiscos-tasting") },
                 { onNodeWithTag("website-see-all") },
-                { onNodeWithText("Get it for iPhone") },
+                { onNodeWithContentDescription("Download on the App Store") },
+                { onNodeWithContentDescription("Get it on Google Play") },
                 { onNodeWithText("Download the app") },
                 { onNodeWithTag("nav-get-app") },
             )
@@ -185,6 +189,29 @@ class WebsiteTest {
             val find = onNodeWithText("Find your night").fetchSemanticsNode().positionInRoot
             val buy = onNodeWithText("Buy in seconds").fetchSemanticsNode().positionInRoot
             assertEquals(find.x, buy.x, "steps are stacked")
+        }
+    }
+
+    @Test
+    fun showcasePlaysOnceItIsOnItsWayInAndPlaysBackAtTheTop() = runComposeUiTest {
+        withKoin(friday, lisbon, signedIn = false) {
+            show(1000, 700)
+            fun showcase() = onNodeWithTag("section-showcase").fetchSemanticsNode().config.getOrNull(SemanticsProperties.StateDescription)
+            assertEquals("off", showcase(), "waiting below the hero")
+            navLink("Next events").performClick()
+            waitForIdle()
+            assertEquals("on", showcase(), "scrolled past its start")
+            homeLink().performClick()
+            waitForIdle()
+            assertEquals("off", showcase(), "back at the top")
+        }
+    }
+
+    @Test
+    fun showcaseIsAlreadyPlayedWithReducedMotion() = runComposeUiTest {
+        withKoin(friday, lisbon, signedIn = false) {
+            show(1000, 700, reduceMotion = true)
+            assertEquals("on", onNodeWithTag("section-showcase").fetchSemanticsNode().config.getOrNull(SemanticsProperties.StateDescription))
         }
     }
 

@@ -5,6 +5,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -16,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 class WebsiteMotionTest {
@@ -39,46 +43,55 @@ class WebsiteMotionTest {
     }
 
     @Test
-    fun showcasePanelGrowsToFullWidthInTheFirstHalf() {
-        assertNear(0.84f, showcaseFrame(0f).panelScale, "scale at 0")
-        assertNear(48f, showcaseFrame(0f).panelRadius, "radius at 0")
-        assertNear(1f, showcaseFrame(0.45f).panelScale, "scale at 0.45")
-        assertNear(0f, showcaseFrame(0.45f).panelRadius, "radius at 0.45")
-        assertNear(1f, showcaseFrame(1f).panelScale, "scale at 1")
+    fun showcaseStartsAbove40PercentAndPlaysBackBelow70PercentAndHoldsBetween() {
+        assertEquals(false, showcaseOn(wasOn = false, top = 800f, viewportH = 1000f), "far below")
+        assertEquals(false, showcaseOn(wasOn = false, top = 400f, viewportH = 1000f), "at 40% it has not started")
+        assertEquals(true, showcaseOn(wasOn = false, top = 399f, viewportH = 1000f), "past 40% it starts")
+        assertEquals(true, showcaseOn(wasOn = true, top = 700f, viewportH = 1000f), "at 70% it keeps playing")
+        assertEquals(false, showcaseOn(wasOn = true, top = 701f, viewportH = 1000f), "past 70% it plays back")
+        assertEquals(false, showcaseOn(wasOn = false, top = 600f, viewportH = 1000f), "between the two it stays off")
+        assertEquals(true, showcaseOn(wasOn = true, top = 600f, viewportH = 1000f), "between the two it stays on")
     }
 
     @Test
-    fun postersRiseAndFanOutAndTheCopyFadesIn() {
-        val start = showcaseFrame(0f)
-        assertNear(140f, start.posterRise, "rise at 0")
-        assertNear(0f, start.copyAlpha, "copy at 0")
-        assertNear(30f, start.copyOffset, "copy offset at 0")
-        assertEquals(FanCard(0f, 0f, 0f), start.fan(1f), "stacked at 0")
+    fun theShowcaseStartsStackedAndPlaysEachPieceOnItsOwnClock() = runComposeUiTest {
+        mainClock.autoAdvance = false
+        var on by mutableStateOf(false)
+        lateinit var frame: ShowcaseFrame
+        setContent { frame = rememberShowcaseFrame(on, reduceMotion = false) }
+        assertNear(0.84f, frame.panelScale, "panel before")
+        assertNear(48f, frame.panelRadius, "radius before")
+        assertNear(170f, frame.posterRise, "rise before")
+        assertNear(0f, frame.copyAlpha, "copy before")
+        assertNear(30f, frame.copyOffset, "copy offset before")
+        assertEquals(FanCard(0f, 0f, 0f), frame.fan(1f), "stacked before")
 
-        val end = showcaseFrame(1f)
-        assertNear(0f, end.posterRise, "rise at 1")
-        assertNear(1f, end.copyAlpha, "copy at 1")
-        assertNear(0f, end.copyOffset, "copy offset at 1")
-        assertEquals(FanCard(92f, 22f, 9f), end.fan(1f))
-        assertEquals(FanCard(-92f, 22f, -9f), end.fan(-1f))
-        assertEquals(FanCard(0f, 0f, 0f), end.fan(0f))
+        on = true
+        mainClock.advanceTimeBy(16)
+        mainClock.advanceTimeBy(500)
+        assertTrue(frame.panelScale > 0.84f, "the panel is already opening at 500 ms")
+        assertNear(0f, frame.copyAlpha, "the copy waits for 800 ms")
+        assertEquals(FanCard(0f, 0f, 0f), frame.fan(1f), "the posters wait for 650 ms")
 
-        val mid = showcaseFrame(0.45f)
-        assertNear(1f - (1f - 0.45f / 0.6f).let { it * it * it }, 1f - mid.posterRise / 140f, "rise eases out")
-        assertNear(0.2f / 0.35f, mid.copyAlpha, "copy at 0.45")
+        mainClock.advanceTimeBy(2000)
+        assertNear(1f, frame.panelScale, "panel after")
+        assertNear(0f, frame.panelRadius, "radius after")
+        assertNear(0f, frame.posterRise, "rise after")
+        assertNear(1f, frame.copyAlpha, "copy after")
+        assertNear(0f, frame.copyOffset, "copy offset after")
+        assertEquals(FanCard(92f, 22f, 9f), frame.fan(1f))
+        assertEquals(FanCard(-92f, 22f, -9f), frame.fan(-1f))
+        assertEquals(FanCard(0f, 0f, 0f), frame.fan(0f))
     }
 
     @Test
-    fun progressRunsOverTheSectionsPinnedStretch() {
-        assertNear(0f, showcaseProgress(500f, 1000f, 800f), "before")
-        assertNear(0.5f, showcaseProgress(1560f, 1000f, 800f), "halfway")
-        assertNear(1f, showcaseProgress(9000f, 1000f, 800f), "after")
-    }
-
-    @Test
-    fun reducedMotionIsTheFinalFrameEverywhere() {
+    fun reducedMotionIsTheFinalFrameEverywhere() = runComposeUiTest {
         assertEquals(HeroFrame(0f, 1f, 1f), heroFrame(640f, 800f, reduceMotion = true))
-        assertEquals(showcaseFrame(1f), showcaseFrame(0f, reduceMotion = true))
+        lateinit var frame: ShowcaseFrame
+        setContent { frame = rememberShowcaseFrame(on = true, reduceMotion = true) }
+        assertNear(1f, frame.panelScale, "panel")
+        assertNear(1f, frame.copyAlpha, "copy")
+        assertEquals(FanCard(92f, 22f, 9f), frame.fan(1f))
     }
 
     @Test
