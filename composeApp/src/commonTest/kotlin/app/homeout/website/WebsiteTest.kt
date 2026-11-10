@@ -68,16 +68,14 @@ class WebsiteTest {
     fun sectionsAppearInTheDesignsOrderWithItsCopy() = runComposeUiTest {
         withKoin(friday, lisbon, signedIn = false) {
             show(1280, 820)
-            val tops = listOf("section-top", "section-showcase", "section-events", "section-how", "section-app", "website-footer").map { top(it) }
+            val tops = listOf("section-top", "section-events", "section-how", "section-app", "website-footer").map { top(it) }
             assertEquals(tops.sorted(), tops, "sections out of order: $tops")
             listOf(
                 "Head out tonight.",
                 "Fado in candlelit cisterns, vinyl on the rooftops, night markets by the river. " +
                     "homeout finds what's on in Lisbon and keeps every ticket in your pocket.",
-                "Download the app", "See what's on", "SCROLL",
-                "ONE APP", "EVERY NIGHT OUT IN ONE PLACE.",
-                "Browse tonight's events, buy tickets in a few taps, and walk in with the QR code on your phone.",
-                "THIS WEEK IN LISBON", "NEXT EVENTS", "See all 4 events",
+                "Download the app", "See what's on",
+                "PLAN THE WEEK", "ALL THIS WEEK", "See all 4 events",
                 "From “what's on?” to through the door in three taps.",
                 "01", "Find your night", "02", "Buy in seconds", "03", "Walk straight in",
                 "HEAD OUT\nTONIGHT",
@@ -192,26 +190,46 @@ class WebsiteTest {
         }
     }
 
+    private fun ComposeUiTest.stage() =
+        onNodeWithTag("section-top").fetchSemanticsNode().config.getOrNull(SemanticsProperties.StateDescription)
+
     @Test
-    fun showcasePlaysOnceItIsOnItsWayInAndPlaysBackAtTheTop() = runComposeUiTest {
+    fun theStagePlaysOnTheFirstSwipeAndPlaysBackAtTheTop() = runComposeUiTest {
         withKoin(friday, lisbon, signedIn = false) {
             show(1000, 700)
-            fun showcase() = onNodeWithTag("section-showcase").fetchSemanticsNode().config.getOrNull(SemanticsProperties.StateDescription)
-            assertEquals("off", showcase(), "waiting below the hero")
+            assertEquals("off", stage(), "the page opens on the full-screen poster")
             navLink("Next events").performClick()
             waitForIdle()
-            assertEquals("on", showcase(), "scrolled past its start")
+            assertEquals("on", stage(), "swiped down")
             homeLink().performClick()
             waitForIdle()
-            assertEquals("off", showcase(), "back at the top")
+            assertEquals("off", stage(), "back at the top")
         }
     }
 
     @Test
-    fun showcaseIsAlreadyPlayedWithReducedMotion() = runComposeUiTest {
+    fun theHeroWordsAreTappableUntilTheStagePlaysAndTheHeadingAfter() = runComposeUiTest {
         withKoin(friday, lisbon, signedIn = false) {
-            show(1000, 700, reduceMotion = true)
-            assertEquals("on", onNodeWithTag("section-showcase").fetchSemanticsNode().config.getOrNull(SemanticsProperties.StateDescription))
+            show(1000, 700)
+            assertTrue(exists("Download the app"), "words before")
+            assertEquals(0, onAllNodesWithText("See all events").fetchSemanticsNodes().size, "no heading before")
+            navLink("Next events").performClick()
+            waitForIdle()
+            assertEquals(0, onAllNodesWithText("Download the app").fetchSemanticsNodes().size, "words gone after")
+            listOf("THIS WEEK IN LISBON", "NEXT EVENTS", "See all events").forEach { assertTrue(exists(it), "heading missing: $it") }
+        }
+    }
+
+    @Test
+    fun theHeroPosterIsTheFirstEventsAndTheStageShowsTheNextTwoBesideIt() = runComposeUiTest {
+        withKoin(friday, lisbon, signedIn = false) {
+            show(1000, 700)
+            navLink("Next events").performClick()
+            waitForIdle()
+            // The first three events appear as stage cards as well as in the grid below.
+            listOf("FADO AT THE OLD CISTERN", "ROOFTOP VINYL SESSION", "NIGHT MARKET BY THE RIVER").forEach {
+                assertTrue(onAllNodesWithText(it).fetchSemanticsNodes().size >= 2, "$it is missing from the stage")
+            }
         }
     }
 
@@ -227,6 +245,9 @@ class WebsiteTest {
         }
     }
 
+    /** The hero poster (the first event's), the nav pill's fill and the events section's background. */
+    private val expectedColors = listOf(Color(0xFF8E4754), WebsiteColors.pill, WebsiteColors.lightSection)
+
     /** The hero's background, the nav pill's fill and the events section's background, as drawn. */
     private fun ComposeUiTest.drawnColors(dark: Boolean): List<Color> {
         show(400, 700, dark)
@@ -234,7 +255,7 @@ class WebsiteTest {
         val pill = onNodeWithTag("nav-get-app").fetchSemanticsNode().boundsInRoot
         val top = onNodeWithTag("website").captureToImage().toPixelMap()
         val pillFill = top[(pill.left + 6 * density).toInt(), pill.center.y.toInt()]
-        // Below the flowers (320 dp) and left of the content: nothing but the page color.
+        // Below the flowers (340 dp) and left of the content: nothing but the poster color.
         val heroBackground = top[(8 * density).toInt(), (600 * density).toInt()]
         onNodeWithText("See what's on").performSemanticsAction(SemanticsActions.OnClick)
         waitForIdle()
@@ -244,14 +265,12 @@ class WebsiteTest {
 
     @Test
     fun theLookIsTheSameInALightAndADarkSetting() = runComposeUiTest {
-        val expected = listOf(WebsiteColors.page, WebsiteColors.pill, WebsiteColors.lightSection)
-        withKoin(friday, lisbon, signedIn = false) { assertEquals(expected, drawnColors(dark = false)) }
+        withKoin(friday, lisbon, signedIn = false) { assertEquals(expectedColors, drawnColors(dark = false)) }
     }
 
     @Test
     fun theLookIsTheSameInADarkSetting() = runComposeUiTest {
-        val expected = listOf(WebsiteColors.page, WebsiteColors.pill, WebsiteColors.lightSection)
-        withKoin(friday, lisbon, signedIn = false) { assertEquals(expected, drawnColors(dark = true)) }
+        withKoin(friday, lisbon, signedIn = false) { assertEquals(expectedColors, drawnColors(dark = true)) }
     }
 
     private fun ComposeUiTest.navState() =

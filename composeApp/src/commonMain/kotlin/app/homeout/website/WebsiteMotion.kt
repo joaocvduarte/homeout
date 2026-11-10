@@ -1,13 +1,11 @@
 package app.homeout.website
 
-import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
@@ -19,84 +17,93 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.staticCompositionLocalOf
 
 /**
- * The design's motion. The hero follows the scroll through a pure function, so it tests without pixels;
- * the showcase plays once its section comes into view. With `reduceMotion` every piece is at its final, still frame.
+ * The design's motion. The stage (hero into next events) plays once the page is swiped and plays
+ * back when it is swiped up again; each piece eases on its own clock, like the design's CSS
+ * transitions. With `reduceMotion` every piece jumps to its final frame.
  */
-
-private fun clamp01(v: Float) = v.coerceIn(0f, 1f)
-
-/** The hero content's transform, in dp and fractions. */
-@Immutable
-internal data class HeroFrame(val translateY: Float, val scale: Float, val alpha: Float)
-
-/** Scrolling one 0.8 viewport sinks the hero 120, shrinks it to 0.92 and fades it to 0.1. */
-internal fun heroFrame(scrollY: Float, viewportH: Float, reduceMotion: Boolean = false): HeroFrame {
-    if (reduceMotion) return HeroFrame(0f, 1f, 1f)
-    val h = clamp01(scrollY / (viewportH * 0.8f))
-    return HeroFrame(translateY = h * 120f, scale = 1f - h * 0.08f, alpha = 1f - h * 0.9f)
-}
 
 /**
- * Whether the showcase is playing. It starts once its top rises above 40% of the viewport and plays
- * back when its top drops below 70% again; between the two it keeps its state, so it can't flicker at an edge.
+ * Whether the stage is playing. One swipe down starts it, and scrolling back up to within 90% of a
+ * viewport from the top plays it back. [direction] is the scroll since the last frame and [scrolled]
+ * how far the page has gone down.
  */
-internal fun showcaseOn(wasOn: Boolean, top: Float, viewportH: Float): Boolean =
-    if (wasOn) top <= viewportH * 0.7f else top < viewportH * 0.4f
-
-/** One poster of the fan, in dp and degrees. */
-@Immutable
-internal data class FanCard(val dx: Float, val dy: Float, val rotation: Float)
-
-/**
- * The showcase's pieces, each easing between its start and its final frame on its own clock, as the
- * design's CSS transitions do. The values are read inside `graphicsLayer` lambdas, so nothing recomposes per frame.
- */
-@Stable
-internal class ShowcaseFrame(
-    private val panel: State<Float>,
-    private val stage: State<Float>,
-    private val cards: State<Float>,
-    private val copyFade: State<Float>,
-    private val copyRise: State<Float>,
-) {
-    /** From 0.84 to full width. */
-    val panelScale: Float get() = 0.84f + 0.16f * panel.value
-    val panelRadius: Float get() = 48f * (1f - panel.value)
-    val posterRise: Float get() = 170f * (1f - stage.value)
-    val copyAlpha: Float get() = copyFade.value
-    val copyOffset: Float get() = 30f * (1f - copyRise.value)
-
-    /** The poster at offset [k] from the middle one (-1, 0, 1): ±92 apart, ±9° tilted, the sides 22 lower. */
-    fun fan(k: Float): FanCard = FanCard(dx = k * 92f * cards.value, dy = kotlin.math.abs(k) * 22f * cards.value, rotation = k * 9f * cards.value)
-}
+internal fun stageOn(wasOn: Boolean, direction: Int, scrolled: Float, viewportH: Float): Boolean =
+    if (wasOn) !(direction < 0 && scrolled < viewportH * 0.9f)
+    else (direction > 0 || scrolled > viewportH * 0.5f) && scrolled > 4f
 
 private val panelEasing = CubicBezierEasing(0.7f, 0f, 0.2f, 1f)
 private val riseEasing = CubicBezierEasing(0.2f, 0.8f, 0.2f, 1f)
 private val cssEase = CubicBezierEasing(0.25f, 0.1f, 0.25f, 1f)
 
-/** The panel opens over 1100 ms, the posters rise (1000 ms after 250) and fan out (900 after 650), the copy arrives (700 after 800). Reduced motion jumps to the final frame. */
-@Composable
-internal fun rememberShowcaseFrame(on: Boolean, reduceMotion: Boolean): ShowcaseFrame {
-    val target = if (on) 1f else 0f
-    fun spec(duration: Int, delay: Int, easing: Easing): AnimationSpec<Float> =
-        if (reduceMotion) snap() else tween(duration, delay, easing)
-    val panel = animateFloatAsState(target, spec(1100, 0, panelEasing), label = "showcasePanel")
-    val stage = animateFloatAsState(target, spec(1000, 250, riseEasing), label = "showcaseStage")
-    val cards = animateFloatAsState(target, spec(900, 650, riseEasing), label = "showcaseCards")
-    val copyFade = animateFloatAsState(target, spec(700, 800, cssEase), label = "showcaseCopyFade")
-    val copyRise = animateFloatAsState(target, spec(700, 800, riseEasing), label = "showcaseCopyRise")
-    return remember(panel, stage, cards, copyFade, copyRise) { ShowcaseFrame(panel, stage, cards, copyFade, copyRise) }
+/**
+ * The stage's pieces between their first and final frame, 0 to 1. The values are read inside
+ * `graphicsLayer` lambdas, so nothing recomposes per frame.
+ */
+@Stable
+internal class StageFrame(
+    private val clip: State<Float>,
+    private val frame: State<Float>,
+    private val flora: State<Float>,
+    private val copyFade: State<Float>,
+    private val copyLift: State<Float>,
+    private val sideFade: State<Float>,
+    private val sideSlide: State<Float>,
+    private val headFade: State<Float>,
+    private val headRise: State<Float>,
+) {
+    /** The poster shrinking from the whole screen into the middle card. */
+    val shrink: Float get() = clip.value
+    val frameAlpha: Float get() = 1f - frame.value
+    val floraAlpha: Float get() = 1f - flora.value
+    val copyAlpha: Float get() = 1f - copyFade.value
+
+    /** The hero words lift 70 dp away. */
+    val copyOffset: Float get() = -70f * copyLift.value
+    val copyGone: Boolean get() = copyLift.value >= 1f
+    val sideAlpha: Float get() = sideFade.value
+
+    /** The side cards start 70 dp closer to the middle and 0.9 the size. */
+    val sideShift: Float get() = 70f * (1f - sideSlide.value)
+    val sideScale: Float get() = 0.9f + 0.1f * sideSlide.value
+    val headAlpha: Float get() = headFade.value
+    val headOffset: Float get() = 28f * (1f - headRise.value)
 }
 
-/** Whether the showcase is on, from where its top sits in the viewport. Without motion, or with reduced motion, always on. */
 @Composable
-internal fun rememberShowcaseOn(motion: SiteMotion?, top: () -> Int): Boolean {
-    var on by remember { mutableStateOf(motion == null || motion.reduce) }
-    if (motion != null && !motion.reduce) {
+private fun phase(on: Boolean, reduceMotion: Boolean, duration: Int, delay: Int, easing: Easing): State<Float> =
+    animateFloatAsState(
+        targetValue = if (on) 1f else 0f,
+        animationSpec = if (reduceMotion) snap() else tween(duration, delay, easing),
+        label = "stage",
+    )
+
+/** The clip opens over 1100 ms, the words lift away (500 fade, 800 lift), the side cards arrive after 300 ms and the heading after 450 ms. */
+@Composable
+internal fun rememberStageFrame(on: Boolean, reduceMotion: Boolean): StageFrame {
+    val clip = phase(on, reduceMotion, 1100, 0, panelEasing)
+    val frame = phase(on, reduceMotion, 400, 0, cssEase)
+    val flora = phase(on, reduceMotion, 700, 0, cssEase)
+    val copyFade = phase(on, reduceMotion, 500, 0, cssEase)
+    val copyLift = phase(on, reduceMotion, 800, 0, panelEasing)
+    val sideFade = phase(on, reduceMotion, 600, 350, cssEase)
+    val sideSlide = phase(on, reduceMotion, 900, 300, riseEasing)
+    val headFade = phase(on, reduceMotion, 600, 500, cssEase)
+    val headRise = phase(on, reduceMotion, 800, 450, riseEasing)
+    return remember(clip, frame, flora, copyFade, copyLift, sideFade, sideSlide, headFade, headRise) {
+        StageFrame(clip, frame, flora, copyFade, copyLift, sideFade, sideSlide, headFade, headRise)
+    }
+}
+
+/** Whether the stage is on, from the scroll's direction and distance. Outside the website it stays off. */
+@Composable
+internal fun rememberStageOn(motion: SiteMotion?): Boolean {
+    var on by remember { mutableStateOf(false) }
+    if (motion != null) {
         LaunchedEffect(motion) {
-            snapshotFlow { top() to motion.scroll.value }.collect { (anchor, scrolled) ->
-                // The anchor is 0 until the page has been laid out; the showcase is never first.
-                if (anchor > 0) on = showcaseOn(on, (anchor - scrolled).toFloat(), motion.viewportPx)
+            var last = motion.scroll.value
+            snapshotFlow { motion.scroll.value }.collect { y ->
+                on = stageOn(on, y - last, y.toFloat(), motion.viewportPx)
+                last = y
             }
         }
     }

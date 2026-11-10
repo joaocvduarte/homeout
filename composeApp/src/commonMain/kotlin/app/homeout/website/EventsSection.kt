@@ -46,7 +46,7 @@ internal fun EventsSection(
     Box(
         modifier
             .fillMaxWidth()
-            .background(WebsiteColors.lightSection, RoundedCornerShape(topStart = 48.dp, topEnd = 48.dp))
+            .background(WebsiteColors.lightSection, RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp))
             .padding(vertical = layout.clamp(80f, 12f, 140f)),
     ) {
         Wrap(layout) {
@@ -58,9 +58,9 @@ internal fun EventsSection(
                     itemVerticalAlignment = Alignment.Bottom,
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        MonoText("This week in Lisbon", 13.dp, WebsiteColors.kicker, letterSpacing = 0.1f)
+                        MonoText("Plan the week", 13.dp, WebsiteColors.kicker, letterSpacing = 0.1f)
                         SiteText(
-                            "Next events", HoTypeRole.DisplayLarge, layout.clamp(52f, 8f, 112f), WebsiteColors.darkInk,
+                            "All this week", HoTypeRole.DisplayLarge, layout.clamp(52f, 8f, 112f), WebsiteColors.darkInk,
                             lineHeight = 0.9f, letterSpacing = 0.01f,
                         )
                     }
