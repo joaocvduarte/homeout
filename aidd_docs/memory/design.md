@@ -18,7 +18,7 @@
 
 - The "homeout Website" page is the Web edition's design: one look in both themes, built in `composeApp/.../website/`, not in `designsystem`.
 - `WebsiteColors` holds its fixed palette, and `WebsiteColorsTest` enforces AA on every text and background pair. `PillButton` is its full-round button (hover lift, focus ring), used only on Web.
-- It reuses `HoFlower(part)` (a logo flower at full strength, decorative) and `HoGlyphs.ArrowDown` from the design system.
+- It reuses `HoFlower(part)` (a logo flower at full strength, decorative), `HoStoreBadge(store)` (the App Store and Google Play badge artwork, rendered from the design's SVGs to PNG) and `HoGlyphs.ArrowDown` from the design system.
 - A close match is accepted: the nav's backdrop blur has no Compose equivalent, so the 0.86 fill stands alone.
 
 ## Components

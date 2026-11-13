@@ -5,6 +5,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -16,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 class WebsiteMotionTest {
@@ -23,62 +27,66 @@ class WebsiteMotionTest {
     private fun assertNear(expected: Float, actual: Float, what: String) = assertEquals(expected, actual, 0.001f, what)
 
     @Test
-    fun heroSinksShrinksAndFadesOverAnEightOfAViewport() {
-        val start = heroFrame(0f, 800f)
-        assertNear(0f, start.translateY, "translateY at 0")
-        assertNear(1f, start.scale, "scale at 0")
-        assertNear(1f, start.alpha, "alpha at 0")
-
-        val end = heroFrame(640f, 800f)
-        assertNear(120f, end.translateY, "translateY at 0.8 viewport")
-        assertNear(0.92f, end.scale, "scale at 0.8 viewport")
-        assertNear(0.1f, end.alpha, "alpha at 0.8 viewport")
-
-        assertEquals(end, heroFrame(5000f, 800f), "it stops at the end")
-        assertNear(60f, heroFrame(320f, 800f).translateY, "halfway")
+    fun theStageStartsOnTheFirstSwipeDownAndPlaysBackOnlyNearTheTop() {
+        val vh = 1000f
+        assertEquals(false, stageOn(false, direction = 0, scrolled = 0f, viewportH = vh), "at rest at the top")
+        assertEquals(false, stageOn(false, direction = 10, scrolled = 4f, viewportH = vh), "4 px is not a swipe yet")
+        assertEquals(true, stageOn(false, direction = 10, scrolled = 5f, viewportH = vh), "a swipe down starts it")
+        assertEquals(true, stageOn(false, direction = -10, scrolled = 501f, viewportH = vh), "past half a viewport it starts whichever way it moves")
+        assertEquals(false, stageOn(false, direction = -10, scrolled = 500f, viewportH = vh), "at half, going up, it stays off")
+        assertEquals(true, stageOn(true, direction = 10, scrolled = 100f, viewportH = vh), "going on down it keeps playing")
+        assertEquals(true, stageOn(true, direction = -10, scrolled = 900f, viewportH = vh), "up, but not yet within 90%")
+        assertEquals(false, stageOn(true, direction = -10, scrolled = 899f, viewportH = vh), "up within 90% it plays back")
+        assertEquals(true, stageOn(true, direction = 0, scrolled = 100f, viewportH = vh), "still, it holds")
     }
 
     @Test
-    fun showcasePanelGrowsToFullWidthInTheFirstHalf() {
-        assertNear(0.84f, showcaseFrame(0f).panelScale, "scale at 0")
-        assertNear(48f, showcaseFrame(0f).panelRadius, "radius at 0")
-        assertNear(1f, showcaseFrame(0.45f).panelScale, "scale at 0.45")
-        assertNear(0f, showcaseFrame(0.45f).panelRadius, "radius at 0.45")
-        assertNear(1f, showcaseFrame(1f).panelScale, "scale at 1")
+    fun theStageStartsOnTheFullScreenPosterAndPlaysEachPieceOnItsOwnClock() = runComposeUiTest {
+        mainClock.autoAdvance = false
+        var on by mutableStateOf(false)
+        lateinit var frame: StageFrame
+        setContent { frame = rememberStageFrame(on, reduceMotion = false) }
+        assertNear(0f, frame.shrink, "poster before")
+        assertNear(1f, frame.frameAlpha, "frame before")
+        assertNear(1f, frame.floraAlpha, "flowers before")
+        assertNear(1f, frame.copyAlpha, "words before")
+        assertNear(0f, frame.copyOffset, "words offset before")
+        assertNear(0f, frame.sideAlpha, "side cards before")
+        assertNear(70f, frame.sideShift, "side shift before")
+        assertNear(0.9f, frame.sideScale, "side scale before")
+        assertNear(0f, frame.headAlpha, "heading before")
+        assertNear(28f, frame.headOffset, "heading offset before")
+
+        on = true
+        mainClock.advanceTimeBy(16)
+        mainClock.advanceTimeBy(300)
+        assertTrue(frame.shrink > 0f, "the poster is already shrinking at 300 ms")
+        assertTrue(frame.copyAlpha < 1f, "the words are already fading")
+        assertNear(0f, frame.sideAlpha, "the side cards wait for 350 ms")
+        assertNear(0f, frame.headAlpha, "the heading waits for 500 ms")
+
+        mainClock.advanceTimeBy(2000)
+        assertNear(1f, frame.shrink, "poster after")
+        assertNear(0f, frame.frameAlpha, "frame after")
+        assertNear(0f, frame.floraAlpha, "flowers after")
+        assertNear(0f, frame.copyAlpha, "words after")
+        assertNear(-70f, frame.copyOffset, "words offset after")
+        assertTrue(frame.copyGone, "words gone")
+        assertNear(1f, frame.sideAlpha, "side cards after")
+        assertNear(0f, frame.sideShift, "side shift after")
+        assertNear(1f, frame.sideScale, "side scale after")
+        assertNear(1f, frame.headAlpha, "heading after")
+        assertNear(0f, frame.headOffset, "heading offset after")
     }
 
     @Test
-    fun postersRiseAndFanOutAndTheCopyFadesIn() {
-        val start = showcaseFrame(0f)
-        assertNear(140f, start.posterRise, "rise at 0")
-        assertNear(0f, start.copyAlpha, "copy at 0")
-        assertNear(30f, start.copyOffset, "copy offset at 0")
-        assertEquals(FanCard(0f, 0f, 0f), start.fan(1f), "stacked at 0")
-
-        val end = showcaseFrame(1f)
-        assertNear(0f, end.posterRise, "rise at 1")
-        assertNear(1f, end.copyAlpha, "copy at 1")
-        assertNear(0f, end.copyOffset, "copy offset at 1")
-        assertEquals(FanCard(92f, 22f, 9f), end.fan(1f))
-        assertEquals(FanCard(-92f, 22f, -9f), end.fan(-1f))
-        assertEquals(FanCard(0f, 0f, 0f), end.fan(0f))
-
-        val mid = showcaseFrame(0.45f)
-        assertNear(1f - (1f - 0.45f / 0.6f).let { it * it * it }, 1f - mid.posterRise / 140f, "rise eases out")
-        assertNear(0.2f / 0.35f, mid.copyAlpha, "copy at 0.45")
-    }
-
-    @Test
-    fun progressRunsOverTheSectionsPinnedStretch() {
-        assertNear(0f, showcaseProgress(500f, 1000f, 800f), "before")
-        assertNear(0.5f, showcaseProgress(1560f, 1000f, 800f), "halfway")
-        assertNear(1f, showcaseProgress(9000f, 1000f, 800f), "after")
-    }
-
-    @Test
-    fun reducedMotionIsTheFinalFrameEverywhere() {
-        assertEquals(HeroFrame(0f, 1f, 1f), heroFrame(640f, 800f, reduceMotion = true))
-        assertEquals(showcaseFrame(1f), showcaseFrame(0f, reduceMotion = true))
+    fun reducedMotionJumpsToTheFinalFrame() = runComposeUiTest {
+        lateinit var frame: StageFrame
+        setContent { frame = rememberStageFrame(on = true, reduceMotion = true) }
+        assertNear(1f, frame.shrink, "poster")
+        assertNear(1f, frame.headAlpha, "heading")
+        assertNear(1f, frame.sideAlpha, "side cards")
+        assertNear(0f, frame.copyAlpha, "words")
     }
 
     @Test

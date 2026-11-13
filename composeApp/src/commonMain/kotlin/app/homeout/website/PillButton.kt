@@ -2,7 +2,6 @@ package app.homeout.website
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,16 +24,16 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import app.homeout.designsystem.HoStore
+import app.homeout.designsystem.HoStoreBadge
 import app.homeout.designsystem.HoTypeRole
 
 /**
@@ -53,7 +51,6 @@ internal fun PillButton(
     horizontalPadding: Dp = 26.dp,
     textSize: Dp = 16.dp,
     outline: Color? = null,
-    icon: ImageVector? = null,
     description: String? = null,
 ) {
     val interaction = remember { MutableInteractionSource() }
@@ -75,7 +72,6 @@ internal fun PillButton(
         horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (icon != null) Image(icon, contentDescription = null, modifier = Modifier.size(20.dp), colorFilter = ColorFilter.tint(ink))
         SiteText(text, HoTypeRole.TitleMedium, textSize, ink)
     }
 }
@@ -99,13 +95,30 @@ internal fun TextLink(text: String, onClick: () -> Unit, color: Color, modifier:
     )
 }
 
-private fun DrawScope.ring(color: Color) {
+/** A store badge as a button: it lifts 2 dp on hover and shows a 2 dp ring when focused. The badge says what it is. */
+@Composable
+internal fun StoreBadgeButton(store: HoStore, onClick: () -> Unit, ringColor: Color, modifier: Modifier = Modifier) {
+    val interaction = remember { MutableInteractionSource() }
+    val hovered by interaction.collectIsHoveredAsState()
+    val focused by interaction.collectIsFocusedAsState()
+    val lift by animateFloatAsState(if (hovered) -2f else 0f, tween(160), label = "lift")
+    HoStoreBadge(
+        store,
+        modifier
+            .graphicsLayer { translationY = lift.dp.toPx() }
+            .then(if (focused) Modifier.drawBehind { ring(ringColor, radius = 10.dp.toPx()) } else Modifier)
+            .hoverable(interaction)
+            .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
+    )
+}
+
+private fun DrawScope.ring(color: Color, radius: Float = size.height / 2) {
     val grow = 3.dp.toPx()
     drawRoundRect(
         color = color,
         topLeft = Offset(-grow, -grow),
         size = Size(size.width + 2 * grow, size.height + 2 * grow),
-        cornerRadius = CornerRadius(size.height / 2 + grow),
+        cornerRadius = CornerRadius(radius + grow),
         style = Stroke(2.dp.toPx()),
     )
 }

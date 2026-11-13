@@ -27,11 +27,11 @@ import kotlinx.datetime.TimeZone
 import kotlin.math.roundToInt
 
 /** The page's sections, in order. The nav and every action scroll to one. */
-internal enum class Section { Top, Showcase, Events, How, App }
+internal enum class Section { Top, Events, How, App }
 
-/** Where each [Section] starts inside the scrolling page. Read when an action scrolls, and by the pinned showcase. */
+/** Where each [Section] starts inside the scrolling page. Read when an action scrolls, and by the pinned stage. */
 internal class Anchors {
-    private val tops = mutableStateListOf(0, 0, 0, 0, 0)
+    private val tops = mutableStateListOf(0, 0, 0, 0)
 
     operator fun get(section: Section): Int = tops[section.ordinal]
 
@@ -44,7 +44,7 @@ private fun Modifier.anchored(anchors: Anchors, section: Section): Modifier =
     onGloballyPositioned { anchors.set(section, it.positionInParent().y.roundToInt()) }
 
 /**
- * The Web edition: one scrolling page with a nav, hero, app showcase, next events, how it works, a
+ * The Web edition: one scrolling page with a nav, the hero-into-events stage, next events, how it works, a
  * get-the-app call to action and a footer. It always uses the design's single look, whatever the
  * visitor's light or dark setting, and offers no buying or accounts: every ticket and download
  * action leads to [Section.App]. With [reduceMotion], anchor scrolls jump.
@@ -69,8 +69,7 @@ fun Website(viewModel: WebsiteViewModel, timeZone: TimeZone, reduceMotion: Boole
             val motion = remember(scroll, reduceMotion, density) { SiteMotion(scroll, with(density) { layout.height.toPx() }, reduceMotion) }
             CompositionLocalProvider(LocalSiteMotion provides motion) {
             Column(Modifier.fillMaxSize().verticalScroll(scroll)) {
-                HeroSection(layout, goTo, Modifier.anchored(anchors, Section.Top).testTag("section-top"))
-                ShowcaseSection(layout, state.events, timeZone, anchors, Modifier.anchored(anchors, Section.Showcase).testTag("section-showcase"))
+                StageSection(layout, state.events, timeZone, goTo, Modifier.anchored(anchors, Section.Top).testTag("section-top"))
                 EventsSection(layout, state, timeZone, goTo, Modifier.anchored(anchors, Section.Events).testTag("section-events"))
                 StepsSection(layout, Modifier.anchored(anchors, Section.How).testTag("section-how"))
                 GetAppSection(layout, goTo, Modifier.anchored(anchors, Section.App).testTag("section-app"))

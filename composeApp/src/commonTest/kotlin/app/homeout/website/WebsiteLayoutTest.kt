@@ -36,9 +36,15 @@ class WebsiteLayoutTest {
     }
 
     @Test
-    fun fanShrinksTo80PercentAt520AndBelow() {
-        assertEquals(1f, layout(521).fanScale)
-        assertEquals(0.8f, layout(520).fanScale)
+    fun stageCardFollowsTheDesignsGeometryAndTightensUpTo640() {
+        assertEquals(268.8f, layout(1280).cardWidth.value, 0.01f)
+        assertEquals(300f, layout(1500).cardWidth.value)
+        assertEquals(390f, layout(1500).cardHeight.value)
+        assertEquals(180f, layout(375).cardWidth.value)
+        assertEquals(24f, layout(641).cardGap.value)
+        assertEquals(14f, layout(640).cardGap.value)
+        assertEquals(210f, layout(641).headHeight.value)
+        assertEquals(170f, layout(640).headHeight.value)
     }
 
     @Test
